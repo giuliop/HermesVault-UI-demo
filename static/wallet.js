@@ -81,9 +81,9 @@ document.getElementById('tabs').addEventListener('htmx:afterSwap', (event) => {
 
 
 // Make functions and variables accessible from the console
-window.peraWallet = peraWallet;
-window.accountAddress = accountAddress;
-window.updateUIAfterConnect = updateUI;
-window.reconnectSession = reconnectSession;
-window.handleConnectWalletClick = handleConnectWalletClick;
-window.handleDisconnectWalletClick = handleDisconnectWalletClick;
+// window.peraWallet = peraWallet;
+// window.accountAddress = accountAddress;
+// window.updateUIAfterConnect = updateUI;
+// window.reconnectSession = reconnectSession;
+// window.handleConnectWalletClick = handleConnectWalletClick;
+// window.handleDisconnectWalletClick = handleDisconnectWalletClick;

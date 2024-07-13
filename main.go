@@ -20,7 +20,7 @@ var (
 )
 
 const (
-	cacheControl = "public, max-age=600"
+	cacheControl = "public, max-age=600" // 600 sec = 10 min
 )
 
 func init() {
@@ -30,16 +30,21 @@ func init() {
 	tmplDeposit = tmpl.Lookup("depositForm")
 	tmplWithdraw = tmpl.Lookup("withdrawForm")
 }
+
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		tmplMain.Execute(w, nil)
+		if err := tmplMain.Execute(w, nil); err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 	})
 
 	http.HandleFunc("/deposit", func(w http.ResponseWriter, r *http.Request) {
 		//w.Header().Set("Cache-Control", cacheControl)
 		switch r.Method {
 		case http.MethodGet:
-			tmplDeposit.Execute(w, nil)
+			if err := tmplDeposit.Execute(w, nil); err != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -52,6 +57,7 @@ func main() {
 			} else {
 				fmt.Fprintf(w, "You want to deposit %f", amount)
 			}
+		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
 	})
@@ -60,19 +66,22 @@ func main() {
 		//w.Header().Set("Cache-Control", cacheControl)
 		switch r.Method {
 		case http.MethodGet:
-			tmplWithdraw.Execute(w, nil)
+			if err := tmplWithdraw.Execute(w, nil); err != nil {
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
 				http.Error(w, "Bad Request", http.StatusBadRequest)
 				return
 			}
 			amountStr := r.FormValue("amount")
-			amount, err := strconv.ParseFloat(amountStr, 64)
+			amount, err := stringToMicroAlgo(amountStr)
 			if err != nil {
-				fmt.Fprintf(w, "Please submit a valid amount.")
+				http.Error(w, "Please submit a valid amount.", http.StatusUnprocessableEntity)
 			} else {
-				fmt.Fprintf(w, "You want to withdraw %f", amount)
+				fmt.Fprintf(w, "You want to withdraw %d microalgo", amount)
 			}
+		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
 	})

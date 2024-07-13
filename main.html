@@ -3,18 +3,32 @@
 <html>
 <head>
     <title>Hermes Vault</title>
-    <link rel="stylesheet" href="https://unpkg.com/missing.css/dist/missing.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="static/main.css">
-    <script src="https://unpkg.com/htmx.org@1.9.2"
-        integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="https://unpkg.com/missing.css/dist/missing.min.css"
+          crossorigin="anonymous">
+    <link rel="stylesheet"
+          href="static/main.css">
+    <script src="https://unpkg.com/htmx.org@2.0.1"
+            integrity="sha384-QWGpdj554B4ETpJJC9z+ZHJcA/i59TyjxEPXiiUgN2WmTyV5OEZWCD6gQhgkdpB/"
+            crossorigin="anonymous">
     </script>
-    <script src="static/wallet.js" type="module" defer></script>
+    <script src="https://unpkg.com/htmx-ext-response-targets@2.0.0/response-targets.js"></script>
+    <script src="static/wallet.js"
+            type="module"
+            defer>
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<body hx-boost="true">
+<body hx-boost="true"
+      hx-ext="response-targets"
+>
     <h1 class="title">Hermes Vault</h1>
-    <div id="tabs" hx-get="/deposit" hx-trigger="load delay:100ms" hx-target="#tabs" hx-swap="innerHTML"></div>
+    <div id="tabs"
+         hx-get="/deposit"
+         hx-trigger="load delay:100ms"
+         hx-target="#tabs"
+         hx-swap="innerHTML"></div>
 </body>
 
 </html>
@@ -22,10 +36,20 @@
 
 {{define "depositForm"}}
 <div class="tab-list" role="tablist">
-    <button hx-get="/deposit" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">Deposit</button>
-    <button hx-get="/withdraw" role="tab" aria-selected="false" aria-controls="tab-content">Withdraw</button>
+    <button hx-get="/deposit"
+            class="selected"
+            role="tab" aria-selected="true" aria-controls="tab-content">
+        Deposit
+    </button>
+    <button hx-get="/withdraw"
+            role="tab" aria-selected="false" aria-controls="tab-content">
+        Withdraw
+    </button>
 </div>
-<div data-wallet id="tab-content" role="tabpanel" class="tab-content">
+<div data-wallet
+     id="tab-content"
+     class="tab-content"
+     role="tabpanel">
     <h2>Deposit</h2>
     <form hx-post="/deposit" class="table rows" hidden>
         <p>
@@ -36,35 +60,63 @@
             <label for="depositAddress">From Address</label>
             <input type="text" id="depositAddress" name="address" readonly>
         </p>
-        <button type="submit">Deposit</button>
+        <button type="submit">
+            Deposit
+        </button>
     </form>
     <div>
-        <button data-wallet-button>Connect Pera Wallet</button>
+        <button data-wallet-button>
+            Connect Pera Wallet
+        </button>
     </div>
 </div>
 {{end}}
 
 {{define "withdrawForm"}}
 <div class="tab-list" role="tablist">
-	<button hx-get="/deposit" role="tab" aria-selected="false" aria-controls="tab-content">Deposit</button>
-	<button hx-get="/withdraw" role="tab" class="selected" role="tab" aria-selected="true" aria-controls="tab-content">Withdraw</button>
+	<button hx-get="/deposit"
+            role="tab" aria-selected="false" aria-controls="tab-content">
+        Deposit
+    </button>
+	<button hx-get="/withdraw"
+            class="selected"
+            role="tab" aria-selected="true" aria-controls="tab-content">
+        Withdraw
+    </button>
 </div>
-<div id="tab-content" role="tabpanel" class="tab-content">
+<div id="tab-content"
+     class="tab-content"
+     role="tabpanel">
     <h2>Withdraw</h2>
-    <form hx-post="/withdraw" class="table rows">
+    <form hx-post="/withdraw"
+          hx-target-error="#errorMsg"
+          class="table rows">
         <p>
             <label for="withdrawAmount">Amount</label>
-            <input type="text" id="withdrawAmount" name="amount" required>
+            <input type="number" id="withdrawAmount" name="amount"
+                   placeholder="algo to withdraw"
+                   step="0.000001" min="1" max="10000000000"
+                   required>
         </p>
         <p>
-            <label for="withdrawAddress">Recipient Address</label>
-            <input type="text" id="withdrawAddress" name="address" required>
+            <label for="withdrawAddress">Address</label>
+            <input type="text" id="withdrawAddress" name="address"
+                   placeholder="recipient"
+                   pattern="[A-Z2-7]{58}"
+                   title="Please input a valid algorand address"
+                   required>
         </p>
         <p>
-            <label for="withdrawNote">Secret Note</label>
-            <input type="text" id="withdrawNote" name="note" required>
+            <label for="withdrawNote">Note</label>
+            <input type="text" id="withdrawNote" name="note"
+                   placeholder="secret note"
+                   required>
         </p>
-        <button type="submit">Submit</button>
+        <button type="submit"
+                hx-target-error="#errorMsg">
+            Submit
+        </button>
     </form>
 </div>
+<div id="errorMsg" class="error"></div>
 {{end}}

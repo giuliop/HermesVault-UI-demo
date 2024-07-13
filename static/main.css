@@ -31,3 +31,13 @@ input[readonly] {
     border: 1px dashed #aaa; /* Dashed border */
     cursor: not-allowed; /* Change cursor to indicate it's not editable */
 }
+
+input::placeholder {
+    color: gray !important;
+    text-align: left !important;
+    font-style: italic;
+ }
+
+.error {
+    color: red;
+}
