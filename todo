@@ -1,0 +1,4 @@
+Currently using a static, full bundle for pera-connect. Use webpack to optimize
+js bundle before release
+
+
