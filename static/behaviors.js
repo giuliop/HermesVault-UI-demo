@@ -1,4 +1,4 @@
-const behaviors = {
+const Trim = {
     /**
      * Trim the value of the input element to a maximum length and display a
      * trimmed version with ellipsis. Save the full value in the data-full-value
@@ -19,7 +19,7 @@ const behaviors = {
      * Restore the full value of the input element from the data-full-value
      * attribute (if it exists)
      */
-    restoreTrim: function (elem) {
+    restore: function (elem) {
         elem.value = elem.dataset.fullValue || elem.value;
     },
 
@@ -27,7 +27,7 @@ const behaviors = {
      * Restore the full value of all input elements in the form from the
      * data-full-value attribute (if it exists)
      */
-    restoreAllTrims: function (event) {
+    restoreAll: function (event) {
         let form = event.target;
         let formData = event.detail.parameters;
         for (let input of form.elements) {
@@ -37,5 +37,9 @@ const behaviors = {
         }
     },
 }
+
+const behaviors = {
+    Trim: Trim,
+};
 
 window.behaviors = behaviors;

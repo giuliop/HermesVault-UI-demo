@@ -90,7 +90,7 @@
     <h2>Withdraw</h2>
     <form hx-post="/withdraw"
           hx-target-error="#errorMsg"
-          hx-on::config-request="behaviors.restoreAllTrims(event)"
+          hx-on::config-request="behaviors.Trim.restoreAll(event)"
           class="table rows">
         <p>
             <label for="withdrawAmount">Amount</label>
@@ -104,16 +104,16 @@
             <input type="text" id="withdrawAddress" name="address"
                    autocomplete="off"
                    placeholder="recipient"
-                   onfocus="behaviors.restoreTrim(this)"
-                   onblur="behaviors.trim(this)"
+                   onfocus="behaviors.Trim.restore(this)"
+                   onblur="behaviors.Trim.trim(this)"
                    required>
         </p>
         <p>
             <label for="withdrawNote">Note</label>
             <input type="text" id="withdrawNote" name="note"
                    placeholder="secret note"
-                   onfocus="behaviors.restoreTrim(this)"
-                   onblur="behaviors.trim(this)"
+                   onfocus="behaviors.Trim.restore(this)"
+                   onblur="behaviors.Trim.trim(this)"
                    required>
         </p>
         <button type="submit"
