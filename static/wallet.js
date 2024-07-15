@@ -4,16 +4,21 @@ const peraWallet = new PeraWalletConnect();
 let accountAddress = "";
 
 function updateUI(accounts) {
+    const depositForm = document.querySelector('[data-wallet-form]');
+    const addressInput = document.querySelector('[data-wallet-address]');
+    const walletButton = document.querySelector('[data-wallet-button]');
     if (accounts.length) {
         accountAddress = accounts[0];
-        document.querySelector('[data-wallet-address] input').value = accountAddress;
-        document.querySelector('form').hidden = false;
-        document.querySelector('[data-wallet-button]').textContent = "Disconnect Wallet";
+        addressInput.value = accountAddress;
+        depositForm.hidden = false;
+        // Trigger the blur event to trim the address in the UI
+        addressInput.dispatchEvent(new Event('blur'));
+        walletButton.textContent = "Disconnect Wallet";
     } else {
         accountAddress = "";
-        document.querySelector('[data-wallet-address] input').value = "";
-        document.querySelector('form').hidden = true;
-        document.querySelector('[data-wallet-button]').textContent = "Connect Pera Wallet";
+        addressInput.value = "";
+        depositForm.hidden = true;
+        walletButton.textContent = "Connect Wallet";
     }
 }
 
@@ -54,7 +59,7 @@ function handleDisconnectWalletClick(event) {
     updateUI([]);
 }
 
-// Use event delegation for the wallet button
+// trigger on wallet button click
 document.addEventListener('click', (event) => {
     if (event.target.matches('[data-wallet-button]')) {
         event.preventDefault();
@@ -66,11 +71,9 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Listen for htmx:afterSwap
-document.getElementById('tabs').addEventListener('htmx:afterSwap', (event) => {
-    const depositTab = event.detail.target.querySelector(
-        '#tab-content[data-wallet]');
-    if (depositTab) {
+// trigger on wallet form load
+document.body.addEventListener('htmx:load', (event) => {
+    if (event.detail.elt.matches('[data-wallet]')) {
         if (!accountAddress) {
             reconnectSession();
         } else {
@@ -80,7 +83,7 @@ document.getElementById('tabs').addEventListener('htmx:afterSwap', (event) => {
 });
 
 
-// Make functions and variables accessible from the console
+// Make functions and variables accessible from the console for debugging
 // window.peraWallet = peraWallet;
 // window.accountAddress = accountAddress;
 // window.updateUIAfterConnect = updateUI;
