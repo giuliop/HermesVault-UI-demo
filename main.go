@@ -90,30 +90,20 @@ func main() {
 			address, errAddress := Input(r.FormValue("address")).toAddress()
 			noteK, noteR, errNote := Input(r.FormValue("note")).toSecretNote()
 			errorMsg := ""
-			errorFocus := []string{}
 			if errAmount != nil {
 				log.Printf("Error parsing withdrawal amount: %v", errAmount)
 				errorMsg += "Please submit a valid algo amount<br>"
-				errorFocus = append(errorFocus, "amount")
 			}
 			if errAddress != nil {
 				log.Printf("Error parsing withdrawal address: %v", errAddress)
 				errorMsg += "Please submit a valid Algorand address<br>"
-				errorFocus = append(errorFocus, "address")
 			}
 			if errNote != nil {
 				log.Printf("Error parsing withdrawal note: %v", errNote)
 				errorMsg += "Please submit a valid secret note"
-				errorFocus = append(errorFocus, "note")
 			}
 			if errorMsg != "" {
-				focusJS := fmt.Sprintf(
-					`<script>
-						behaviors.trimAllAndFocusOn(document.getElementById('withdrawForm'), '%s');
-					</script>`,
-					errorFocus[0],
-				)
-				http.Error(w, errorMsg+"\n"+focusJS, http.StatusUnprocessableEntity)
+				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
 				return
 			}
 			log.Printf("Withdrawal request: %d microalgos to %s with note (%x, %x)\n", amount, address, noteK, noteR)

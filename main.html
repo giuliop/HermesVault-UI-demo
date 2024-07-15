@@ -88,10 +88,9 @@
      class="tab-content"
      role="tabpanel">
     <h2>Withdraw</h2>
-    <form id="withdrawForm"
-          hx-post="/withdraw"
+    <form hx-post="/withdraw"
           hx-target-error="#errorMsg"
-          onsubmit="behaviors.restoreAllTrims(this)"
+          hx-on::config-request="behaviors.restoreAllTrims(event)"
           class="table rows">
         <p>
             <label for="withdrawAmount">Amount</label>

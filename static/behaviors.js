@@ -27,22 +27,13 @@ const behaviors = {
      * Restore the full value of all input elements in the form from the
      * data-full-value attribute (if it exists)
      */
-    restoreAllTrims: function (form) {
-        for (const child of form.querySelectorAll('input')) {
-            child.value = child.dataset.fullValue || child.value;
-        }
-    },
-
-    /**
-     * trim all input elements of the form and focus on elemId
-     */
-    trimAllAndFocusOn: function (form, elemName) {
-        for (const elem of form.querySelectorAll('input')) {
-            this.trim(elem);
-        }
-        const targetElem = form.querySelector(`input[name="${elemName}"]`);
-        if (targetElem) {
-            targetElem.focus();
+    restoreAllTrims: function (event) {
+        let form = event.target;
+        let formData = event.detail.parameters;
+        for (let input of form.elements) {
+            if (input.dataset.fullValue) {
+                formData[input.name] = input.dataset.fullValue;
+            }
         }
     },
 }
