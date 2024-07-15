@@ -13,10 +13,8 @@
             crossorigin="anonymous">
     </script>
     <script src="https://unpkg.com/htmx-ext-response-targets@2.0.0/response-targets.js"></script>
-    <script src="static/wallet.js"
-            type="module"
-            defer>
-    </script>
+    <script src="static/wallet.js" type="module" defer> </script>
+    <script src="static/behaviors.js" type="module" defer> </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
@@ -58,7 +56,9 @@
         </p>
         <p data-wallet-address>
             <label for="depositAddress">From Address</label>
-            <input type="text" id="depositAddress" name="address" readonly>
+            <input type="text" id="depositAddress" name="address"
+            autocomplete="off"
+            readonly>
         </p>
         <button type="submit">
             Deposit
@@ -88,28 +88,33 @@
      class="tab-content"
      role="tabpanel">
     <h2>Withdraw</h2>
-    <form hx-post="/withdraw"
+    <form id="withdrawForm"
+          hx-post="/withdraw"
           hx-target-error="#errorMsg"
+          onsubmit="behaviors.restoreAllTrims(this)"
           class="table rows">
         <p>
             <label for="withdrawAmount">Amount</label>
             <input type="number" id="withdrawAmount" name="amount"
                    placeholder="algo to withdraw"
-                   step="0.000001" min="1" max="10000000000"
+                   step="0.000001" min="1"
                    required>
         </p>
         <p>
             <label for="withdrawAddress">Address</label>
             <input type="text" id="withdrawAddress" name="address"
+                   autocomplete="off"
                    placeholder="recipient"
-                   pattern="[A-Z2-7]{58}"
-                   title="Please input a valid algorand address"
+                   onfocus="behaviors.restoreTrim(this)"
+                   onblur="behaviors.trim(this)"
                    required>
         </p>
         <p>
             <label for="withdrawNote">Note</label>
             <input type="text" id="withdrawNote" name="note"
                    placeholder="secret note"
+                   onfocus="behaviors.restoreTrim(this)"
+                   onblur="behaviors.trim(this)"
                    required>
         </p>
         <button type="submit"

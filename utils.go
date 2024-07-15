@@ -1,14 +1,18 @@
 package main
 
 import (
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/algorand/go-algorand-sdk/types"
 )
 
-// stringToMicroAlgo converts a string representing an algo amount to microalgos.
-func stringToMicroAlgo(amountStr string) (uint64, error) {
-	intStr, decStr, hasDecimal := strings.Cut(amountStr, ".")
+// stringToMicroAlgo converts an input representing an algo amount to microalgos
+func (input Input) toMicroAlgo() (uint64, error) {
+	intStr, decStr, hasDecimal := strings.Cut(string(input), ".")
 	integer, err := strconv.ParseUint(intStr, 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("invalid integer part: %w", err)
@@ -27,4 +31,25 @@ func stringToMicroAlgo(amountStr string) (uint64, error) {
 		}
 	}
 	return integer*1_000_000 + decimal, nil
+}
+
+// toAddress converts an input to an Algorand address
+func (input Input) toAddress() (types.Address, error) {
+	address := string(input)
+	return types.DecodeAddress(address)
+}
+
+// toSecretNote converts an input to the k, r values of a secret note.
+// Input is expected to be a hex-encoded string of 62 bytes (124 hex characters).
+func (input Input) toSecretNote() ([]byte, []byte, error) {
+	if len(input) != 124 {
+		return nil, nil, errors.New("invalid secret note length")
+	}
+	decoded, err := hex.DecodeString(string(input))
+	if err != nil {
+		return nil, nil, fmt.Errorf("error decoding hex string: %v", err)
+	}
+	k := decoded[:31]
+	r := decoded[31:]
+	return k, r, nil
 }

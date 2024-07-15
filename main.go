@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,8 +21,11 @@ var (
 )
 
 const (
+	// TODO: Set a cache control header where useful
 	cacheControl = "public, max-age=600" // 600 sec = 10 min
 )
+
+type Input string
 
 func init() {
 	tmpl := template.Must(template.New("main").ParseFiles("main.html"))
@@ -34,6 +38,7 @@ func init() {
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if err := tmplMain.Execute(w, nil); err != nil {
+			log.Printf("Error executing main template: %v", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 	})
@@ -43,16 +48,20 @@ func main() {
 		switch r.Method {
 		case http.MethodGet:
 			if err := tmplDeposit.Execute(w, nil); err != nil {
+				log.Printf("Error executing deposit template: %v", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			}
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
+				log.Printf("Error parsing form: %v", err)
 				http.Error(w, "Bad Request", http.StatusBadRequest)
 				return
 			}
 			amountStr := r.FormValue("amount")
 			amount, err := strconv.ParseFloat(amountStr, 64)
+
 			if err != nil {
+				log.Printf("Error parsing amount: %v", err)
 				fmt.Fprintf(w, "Please submit a valid amount.")
 			} else {
 				fmt.Fprintf(w, "You want to deposit %f", amount)
@@ -66,21 +75,49 @@ func main() {
 		//w.Header().Set("Cache-Control", cacheControl)
 		switch r.Method {
 		case http.MethodGet:
+
 			if err := tmplWithdraw.Execute(w, nil); err != nil {
+				log.Printf("Error executing withdraw template: %v", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			}
+
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
+				log.Printf("Error parsing form: %v", err)
 				http.Error(w, "Bad Request", http.StatusBadRequest)
+			}
+			amount, errAmount := Input(r.FormValue("amount")).toMicroAlgo()
+			address, errAddress := Input(r.FormValue("address")).toAddress()
+			noteK, noteR, errNote := Input(r.FormValue("note")).toSecretNote()
+			errorMsg := ""
+			errorFocus := []string{}
+			if errAmount != nil {
+				log.Printf("Error parsing withdrawal amount: %v", errAmount)
+				errorMsg += "Please submit a valid algo amount<br>"
+				errorFocus = append(errorFocus, "amount")
+			}
+			if errAddress != nil {
+				log.Printf("Error parsing withdrawal address: %v", errAddress)
+				errorMsg += "Please submit a valid Algorand address<br>"
+				errorFocus = append(errorFocus, "address")
+			}
+			if errNote != nil {
+				log.Printf("Error parsing withdrawal note: %v", errNote)
+				errorMsg += "Please submit a valid secret note"
+				errorFocus = append(errorFocus, "note")
+			}
+			if errorMsg != "" {
+				focusJS := fmt.Sprintf(
+					`<script>
+						behaviors.trimAllAndFocusOn(document.getElementById('withdrawForm'), '%s');
+					</script>`,
+					errorFocus[0],
+				)
+				http.Error(w, errorMsg+"\n"+focusJS, http.StatusUnprocessableEntity)
 				return
 			}
-			amountStr := r.FormValue("amount")
-			amount, err := stringToMicroAlgo(amountStr)
-			if err != nil {
-				http.Error(w, "Please submit a valid amount.", http.StatusUnprocessableEntity)
-			} else {
-				fmt.Fprintf(w, "You want to withdraw %d microalgo", amount)
-			}
+			log.Printf("Withdrawal request: %d microalgos to %s with note (%x, %x)\n", amount, address, noteK, noteR)
+			fmt.Fprint(w, "Success !")
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
@@ -93,8 +130,7 @@ func main() {
 	cert, err := tls.LoadX509KeyPair("dev-ssl-certificates/localhost+4.pem",
 		"dev-ssl-certificates/localhost+4-key.pem")
 	if err != nil {
-		fmt.Println("Error loading ssl certificates:", err)
-		return
+		log.Fatalf("Error loading certificates: %v", err)
 	}
 
 	// Create a custom HTTPS server
@@ -114,13 +150,13 @@ func main() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := server.Shutdown(ctx); err != nil {
-			fmt.Printf("Server forced to shutdown: %v\n", err)
+			log.Fatalf("Server forced to shutdown: %v\n", err)
 		}
 	}()
 
 	fmt.Println("Server is running on https://localhost:3000 and https://maya.local:3000")
 	err = server.ListenAndServeTLS("", "")
 	if err != nil {
-		fmt.Println("Error starting HTTPS server:", err)
+		log.Fatalf("Error starting HTTPS server: %v", err)
 	}
 }
