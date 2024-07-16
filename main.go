@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 )
@@ -57,15 +56,23 @@ func main() {
 				http.Error(w, "Bad Request", http.StatusBadRequest)
 				return
 			}
-			amountStr := r.FormValue("amount")
-			amount, err := strconv.ParseFloat(amountStr, 64)
-
-			if err != nil {
-				log.Printf("Error parsing amount: %v", err)
-				fmt.Fprintf(w, "Please submit a valid amount.")
-			} else {
-				fmt.Fprintf(w, "You want to deposit %f", amount)
+			amount, errAmount := Input(r.FormValue("amount")).toMicroAlgo()
+			address, errAddress := Input(r.FormValue("address")).toAddress()
+			errorMsg := ""
+			if errAmount != nil {
+				log.Printf("Error parsing withdrawal amount: %v", errAmount)
+				errorMsg += "Please submit a valid algo amount<br>"
 			}
+			if errAddress != nil {
+				log.Printf("Error parsing withdrawal address: %v", errAddress)
+				errorMsg += "Please submit a valid Algorand address<br>"
+			}
+			if errorMsg != "" {
+				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
+				return
+			}
+			fmt.Fprintf(w, "You want to deposit %d microalgos from %s\n",
+				amount, address)
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
@@ -75,12 +82,10 @@ func main() {
 		//w.Header().Set("Cache-Control", cacheControl)
 		switch r.Method {
 		case http.MethodGet:
-
 			if err := tmplWithdraw.Execute(w, nil); err != nil {
 				log.Printf("Error executing withdraw template: %v", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			}
-
 		case http.MethodPost:
 			if err := r.ParseForm(); err != nil {
 				log.Printf("Error parsing form: %v", err)

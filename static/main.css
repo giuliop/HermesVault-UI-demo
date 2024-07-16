@@ -5,8 +5,12 @@ body {
     padding: 20px;
 }
 
-.title {
-    margin-bottom: 40px;
+h1.title {
+    font-size: 36px; /* Increase font size */
+    font-weight: 700; /* Make the font bolder */
+    text-align: center; /* Center the text */
+    margin-bottom: 50px; /* Add some space below the title */
+    color: #343a40; /* Darker color for better visibility */
 }
 
 .tab-list {
