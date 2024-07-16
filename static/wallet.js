@@ -4,20 +4,20 @@ const peraWallet = new PeraWalletConnect();
 let accountAddress = "";
 
 function updateUI(accounts) {
-    const depositForm = document.querySelector('[data-wallet-form]');
     const addressInput = document.querySelector('[data-wallet-address]');
-    const walletButton = document.querySelector('[data-wallet-button]');
+    const submitButton = document.querySelector('[data-wallet-submit-button]');
+    const walletButton = document.querySelector('[data-wallet-connect-button]');
     if (accounts.length) {
         accountAddress = accounts[0];
         addressInput.value = accountAddress;
-        depositForm.hidden = false;
         // Trigger the blur event to trim the address in the UI
         addressInput.dispatchEvent(new Event('blur'));
+        submitButton.classList.remove('hidden');
         walletButton.textContent = "Disconnect Wallet";
     } else {
         accountAddress = "";
         addressInput.value = "";
-        depositForm.hidden = true;
+        submitButton.classList.add('hidden');
         walletButton.textContent = "Connect Wallet";
     }
 }
@@ -61,7 +61,7 @@ function handleDisconnectWalletClick(event) {
 
 // trigger on wallet button click
 document.addEventListener('click', (event) => {
-    if (event.target.matches('[data-wallet-button]')) {
+    if (event.target.matches('[data-wallet-connect-button]')) {
         event.preventDefault();
         if (accountAddress) {
             handleDisconnectWalletClick(event);

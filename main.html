@@ -22,35 +22,41 @@
       hx-ext="response-targets"
 >
     <h1 class="title">Hermes Vault</h1>
-    <div id="tabs"
+    <div id="ui"
          hx-get="/deposit"
          hx-trigger="load delay:100ms"
-         hx-target="#tabs"
-         hx-swap="innerHTML"></div>
+         hx-target="#ui"
+         hx-swap="innerHTML">
+    </div>
 </body>
 
 </html>
 {{end}}
 
-{{define "depositForm"}}
-<div class="tab-list" role="tablist">
+
+{{define "tabList"}}
+<div class="tab-list" role="tablist" hx-swap="innerHTML settle:0s">
     <button hx-get="/deposit"
-            class="selected"
-            role="tab" aria-selected="true" aria-controls="tab-content">
+            class="{{if eq . `deposit`}}selected{{end}}"
+            role="tab" aria-selected="{{if eq . `deposit`}}true{{else}}false{{end}}" aria-controls="tab-content">
         Deposit
     </button>
     <button hx-get="/withdraw"
-            role="tab" aria-selected="false" aria-controls="tab-content">
+            class="{{if eq . `withdraw`}}selected{{end}}"
+            role="tab" aria-selected="{{if eq . `withdraw`}}true{{else}}false{{end}}" aria-controls="tab-content">
         Withdraw
     </button>
 </div>
+{{end}}
+
+{{define "deposit"}}
+{{template "tabList" "deposit"}}
 <div id="tab-content" class="tab-content" role="tabpanel" data-wallet>
 	<h2>Deposit</h2>
 	<form hx-post="/deposit"
           hx-target-error="#errorMsg"
           hx-on::config-request="behaviors.Trim.restoreAll(event)"
-          data-wallet-form
-          hidden >
+          data-wallet-form>
         <p class="row">
             <label for="depositAmount">
                 Amount
@@ -69,12 +75,12 @@
                    onblur="behaviors.Trim.trim(this)"
                    onfocus="behaviors.Trim.restore(this)" autocomplete="off" readonly >
         </p>
-        <button type="submit">
+        <button type="submit" data-wallet-submit-button>
             Deposit
         </button>
     </form>
     <div>
-        <button class="connect-wallet" data-wallet-button>
+        <button class="connect-wallet" data-wallet-connect-button>
             Connect Wallet
         </button>
     </div>
@@ -82,18 +88,8 @@
 <div id="errorMsg" class="error"></div>
 {{end}}
 
-{{define "withdrawForm"}}
-<div class="tab-list" role="tablist">
-	<button hx-get="/deposit"
-					role="tab" aria-selected="false" aria-controls="tab-content">
-        Deposit
-    </button>
-	<button hx-get="/withdraw"
-				  class="selected"
-					role="tab" aria-selected="true" aria-controls="tab-content">
-        Withdraw
-    </button>
-</div>
+{{define "withdraw"}}
+{{template "tabList" "withdraw"}}
 <div id="tab-content" class="tab-content" role="tabpanel">
     <h2>Withdraw</h2>
     <form hx-post="/withdraw"

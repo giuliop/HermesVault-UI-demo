@@ -13,23 +13,24 @@ h1.title {
     color: #343a40; /* Darker color for better visibility */
 }
 
+#ui {
+    max-width: 500px;
+}
+
 .tab-list {
     display: flex;
     justify-content: space-between;
 }
 
-.form-container {
-    text-align: left;
-    width: 100%;
-    max-width: 400px;
+.hidden {
+    visibility: hidden;
 }
-
 
 button {
     font-size: inherit;
     margin-bottom: 20px;
-    padding: 10px 20px;
     width: 100%;
+    padding: 10px 20px;
     cursor: pointer;
 }
 
@@ -37,7 +38,6 @@ button.connect-wallet {
     background-color: #6c757d;
     color: white;
 }
-
 
 input[readonly] {
     background-color: #f0f0f0; /* Light gray background */

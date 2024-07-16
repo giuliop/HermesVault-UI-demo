@@ -30,8 +30,8 @@ func init() {
 	tmpl := template.Must(template.New("main").ParseFiles("main.html"))
 
 	tmplMain = tmpl.Lookup("main")
-	tmplDeposit = tmpl.Lookup("depositForm")
-	tmplWithdraw = tmpl.Lookup("withdrawForm")
+	tmplDeposit = tmpl.Lookup("deposit")
+	tmplWithdraw = tmpl.Lookup("withdraw")
 }
 
 func main() {
