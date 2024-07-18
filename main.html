@@ -19,14 +19,14 @@
 </head>
 
 <body hx-boost="true"
-      hx-ext="response-targets"
->
+      hx-ext="response-targets">
     <h1 class="title">Hermes Vault</h1>
     <div id="ui"
          hx-get="/deposit"
          hx-trigger="load delay:100ms"
          hx-target="#ui"
-         hx-swap="innerHTML">
+         hx-swap="innerHTML"
+    >
     </div>
 </body>
 
@@ -54,7 +54,8 @@
 <div id="tab-content" class="tab-content" role="tabpanel" data-wallet>
 	<h2>Deposit</h2>
 	<form hx-post="/deposit"
-          hx-target-error="#errorMsg"
+          hx-target-error="#errorBox"
+          hx-indicator="#spinner"
           hx-on::config-request="behaviors.Trim.restoreAll(event)"
           data-wallet-form>
         <p class="row">
@@ -75,7 +76,9 @@
                    onblur="behaviors.Trim.trim(this)"
                    onfocus="behaviors.Trim.restore(this)" autocomplete="off" readonly >
         </p>
-        <button type="submit" data-wallet-submit-button>
+        <button type="submit" data-wallet-submit-button
+                onclick="document.querySelector('#errorBox').style.display='none'"
+        >
             Deposit
         </button>
     </form>
@@ -85,7 +88,24 @@
         </button>
     </div>
 </div>
-<div id="errorMsg" class="error"></div>
+{{template "errorBox"}}
+{{end}}
+
+{{define "errorBox"}}
+<div id="spinner" class="progress-indicator">
+    <img class="svg-icon" src="/static/mathematician.svg">
+</div>
+<div id="errorBox"
+    class="box bad"
+    style="display:none;"
+    hx-on::after-swap="
+            tab = document.querySelector('#tab-content');
+            width = window.getComputedStyle(tab).width;
+            event.target.style.width=width;
+            event.target.style.display=''
+    "
+>
+</div>
 {{end}}
 
 {{define "withdraw"}}
@@ -93,8 +113,9 @@
 <div id="tab-content" class="tab-content" role="tabpanel">
     <h2>Withdraw</h2>
     <form hx-post="/withdraw"
-          hx-target-error="#errorMsg"
+          hx-target-error="#errorBox"
           hx-on::config-request="behaviors.Trim.restoreAll(event)"
+          hx-indicator="#spinner"
 		>
         <p class="row">
             <label for="withdrawAmount">
@@ -127,10 +148,11 @@
                    required>
         </p>
         <button type="submit"
-                hx-target-error="#errorMsg">
+                onclick="document.querySelector('#errorBox').style.display='none'"
+        >
             Withdraw
         </button>
     </form>
 </div>
-<div id="errorMsg" class="error"></div>
+{{template "errorBox"}}
 {{end}}

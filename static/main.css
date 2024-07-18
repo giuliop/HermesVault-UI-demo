@@ -1,3 +1,10 @@
+/* Apply minimum width if the device width is at least that */
+@media (min-width: 400px) {
+    input {
+            min-width: 250px;
+    }
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -6,19 +13,12 @@ body {
 }
 
 h1.title {
-    font-size: 36px; /* Increase font size */
-    font-weight: 700; /* Make the font bolder */
-    text-align: center; /* Center the text */
-    margin-bottom: 50px; /* Add some space below the title */
-    color: #343a40; /* Darker color for better visibility */
-}
-
-#ui {
-    max-width: 500px;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 50px;
 }
 
 .tab-list {
-    display: flex;
     justify-content: space-between;
 }
 
@@ -26,11 +26,11 @@ h1.title {
     visibility: hidden;
 }
 
-button {
+.tab-content button {
     font-size: inherit;
     margin-bottom: 20px;
     width: 100%;
-    padding: 10px 20px;
+    padding: 10px 0px;
     cursor: pointer;
 }
 
@@ -50,8 +50,21 @@ input::placeholder {
     color: gray !important;
     text-align: left !important;
     font-style: italic;
- }
+}
 
-.error {
-    color: red;
+.progress-indicator {
+    display: none;
+    position: relative;
+}
+.htmx-request .progress-indicator {
+    display: block;
+}
+.htmx-request.progress-indicator {
+    display: block;
+}
+
+.svg-icon {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* Center the SVG horizontally */
 }
