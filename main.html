@@ -1,6 +1,6 @@
 {{define "main"}}
 <!DOCTYPE html>
-<html>
+<html class="-no-dark-theme">
 <head>
     <title>Hermes Vault</title>
     <link rel="stylesheet"
@@ -22,7 +22,7 @@
       hx-ext="response-targets">
     <h1 class="title">Hermes Vault</h1>
     <div id="ui"
-         hx-get="/deposit"
+         hx-get="/withdraw"
          hx-trigger="load delay:100ms"
          hx-target="#ui"
          hx-swap="innerHTML"
@@ -33,23 +33,24 @@
 </html>
 {{end}}
 
+{{define "tabButton"}}
+<button hx-get="/{{.url}}"
+        class="{{if eq .selected .url}}selected{{end}}"
+        role="tab"
+        aria-selected="{{if eq .selected .url}}true{{else}}false{{end}}"
+        aria-controls="tab-content">
+    {{(.title)}}
+</button>
+{{end}}
 
 {{define "tabList"}}
 <div class="tab-list" role="tablist" hx-swap="innerHTML settle:0s">
-    <button hx-get="/deposit"
-            class="{{if eq . `deposit`}}selected{{end}}"
-            role="tab" aria-selected="{{if eq . `deposit`}}true{{else}}false{{end}}" aria-controls="tab-content">
-        Deposit
-    </button>
-    <button hx-get="/withdraw"
-            class="{{if eq . `withdraw`}}selected{{end}}"
-            role="tab" aria-selected="{{if eq . `withdraw`}}true{{else}}false{{end}}" aria-controls="tab-content">
-        Withdraw
-    </button>
+    {{template "tabButton" (dict "url" "deposit" "title" "Deposit" "selected" .)}}
+    {{template "tabButton" (dict "url" "withdraw" "title" "Withdraw" "selected" .)}}
 </div>
 {{end}}
 
-{{define "deposit"}}
+{{define "depositForm"}}
 {{template "tabList" "deposit"}}
 <div id="tab-content" class="tab-content" role="tabpanel" data-wallet>
 	<h2>Deposit</h2>
@@ -93,7 +94,7 @@
 
 {{define "errorBox"}}
 <div id="spinner" class="progress-indicator">
-    <img class="svg-icon" src="/static/mathematician.svg">
+    <img class="centered" src="/static/mathematician.svg">
 </div>
 <div id="errorBox"
     class="box bad"
@@ -105,10 +106,11 @@
             event.target.style.display=''
     "
 >
+    <strong class="block titlebar">Error</strong>
 </div>
 {{end}}
 
-{{define "withdraw"}}
+{{define "withdrawForm"}}
 {{template "tabList" "withdraw"}}
 <div id="tab-content" class="tab-content" role="tabpanel">
     <h2>Withdraw</h2>

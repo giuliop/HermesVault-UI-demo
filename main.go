@@ -14,9 +14,10 @@ import (
 )
 
 var (
-	tmplMain     *template.Template
-	tmplDeposit  *template.Template
-	tmplWithdraw *template.Template
+	tmplMain              *template.Template
+	tmplDeposit           *template.Template
+	tmplWithdraw          *template.Template
+	tmplConfirmWithdrawal *template.Template
 )
 
 const (
@@ -27,11 +28,30 @@ const (
 type Input string
 
 func init() {
-	tmpl := template.Must(template.New("main").ParseFiles("main.html"))
-
+	// Helper function to create a map for passing multiple values to templates
+	funcMap := template.FuncMap{
+		"dict": func(values ...interface{}) (map[string]interface{}, error) {
+			if len(values)%2 != 0 {
+				return nil, fmt.Errorf("invalid dict call")
+			}
+			dict := make(map[string]interface{}, len(values)/2)
+			for i := 0; i < len(values); i += 2 {
+				key, ok := values[i].(string)
+				if !ok {
+					return nil, fmt.Errorf("dict keys must be strings")
+				}
+				dict[key] = values[i+1]
+			}
+			return dict, nil
+		},
+	}
+	tmpl := template.Must(template.New("main").Funcs(funcMap).ParseFiles(
+		"main.html", "confirm.html",
+	))
 	tmplMain = tmpl.Lookup("main")
-	tmplDeposit = tmpl.Lookup("deposit")
-	tmplWithdraw = tmpl.Lookup("withdraw")
+	tmplDeposit = tmpl.Lookup("depositForm")
+	tmplWithdraw = tmpl.Lookup("withdrawForm")
+	tmplConfirmWithdrawal = tmpl.Lookup("confirmWithdrawal")
 }
 
 func main() {
@@ -80,6 +100,22 @@ func main() {
 
 	http.HandleFunc("/withdraw", func(w http.ResponseWriter, r *http.Request) {
 		//w.Header().Set("Cache-Control", cacheControl)
+		if true {
+			data := map[string]interface{}{
+				"Amount":           "100",
+				"Fee":              "1",
+				"AddressFirstFive": "LXUTB",
+				"AddressMiddle":    "24U5OES3D4ZOOQKYY6DISYD7TIYCT5XXJKC36HUT4XLLMGVC",
+				"AddressLastFive":  "QJQ3A",
+				"Note":             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+				"NewSecretNote":    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+			}
+			if err := tmplConfirmWithdrawal.Execute(w, data); err != nil {
+				log.Printf("Error executing success template: %v", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
+			return
+		}
 		switch r.Method {
 		case http.MethodGet:
 			if err := tmplWithdraw.Execute(w, nil); err != nil {
@@ -101,18 +137,35 @@ func main() {
 			}
 			if errAddress != nil {
 				log.Printf("Error parsing withdrawal address: %v", errAddress)
-				errorMsg += "Please submit a valid Algorand address<br>"
+				errorMsg += "Invalid Algorand address<br>"
 			}
 			if errNote != nil {
 				log.Printf("Error parsing withdrawal note: %v", errNote)
-				errorMsg += "Please submit a valid secret note"
+				errorMsg += "Invalid secret note"
 			}
-			if errorMsg != "" {
+			// if errorMsg != "" {
+			// 	http.Error(w, errorMsg, http.StatusUnprocessableEntity)
+			// 	return
+			// }
+			isValid := verifyWithdrawal(amount, address, noteK, noteR)
+			if isValid {
+				data := map[string]interface{}{
+					"Amount":  Input(r.FormValue("amount")),
+					"Address": Input(r.FormValue("address")),
+					"Note":    Input(r.FormValue("note")),
+					// TODO: Replace with actual logic for new note
+					"NewSecretNote": "generatedNewSecretNote",
+				}
+				if err := tmplConfirmWithdrawal.Execute(w, data); err != nil {
+					log.Printf("Error executing success template: %v", err)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				}
+			} else {
+				errorMsg = `<b>Proof verification failed.</b><br>
+							The secret note you provided does not exist
+							or does not contain enough funds.`
 				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
-				return
 			}
-			log.Printf("Withdrawal request: %d microalgos to %s with note (%x, %x)\n", amount, address, noteK, noteR)
-			fmt.Fprint(w, "Success !")
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/algorand/go-algorand-sdk/types"
 )
@@ -52,4 +53,12 @@ func (input Input) toSecretNote() ([]byte, []byte, error) {
 	k := decoded[:31]
 	r := decoded[31:]
 	return k, r, nil
+}
+
+func verifyWithdrawal(amount uint64, address types.Address, noteK, noteR []byte,
+) bool {
+	// sleep for 3 sec
+	time.Sleep(3 * time.Second)
+	// return true is amount is 100 algos, false otherwise
+	return amount == 100_000_000
 }

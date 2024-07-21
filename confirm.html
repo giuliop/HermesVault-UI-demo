@@ -1,0 +1,105 @@
+{{define "confirmWithdrawal"}}
+<figure class="container">
+    <figcaption class="big">
+        <strong>Withdrawal Confirmation</strong>
+    </figcaption>
+    <p>
+        <span class="row">
+            <span class="bold">
+                Amount to withdraw
+            </span>
+            <span>
+                {{.Amount}} algo
+            </span>
+        </span>
+        <span class="row">
+            <span class="bold">
+                Protocol Fee
+                    <span class="has-info">
+                        <span class="tooltip">
+                            0.1% of withdrawal<br>(1 algo minimum fee)
+                        </span>
+                    </span>
+            </span>
+            <span>
+                {{.Fee}} algo
+            </span>
+        </span>
+    </p>
+    <p>
+        <span class="bold">
+            Recipient address
+        </span>
+        <span class="boxed-text border">
+            <span class="bold">{{.AddressFirstFive}}</span><span class="<small>">{{.AddressMiddle}}</span><span class="bold">{{.AddressLastFive}}</span>
+        </span>
+    </p>
+    <p class="align-all">
+        <span class="bold">
+            New secret note to spend any remaining balance
+        </span>
+        <img src="/static/copy.svg"
+             alt="Copy to Clipboard"
+             title="Copy to Clipboard"
+             style="width: 30px; height: 30px;
+                    align-self: flex-start;
+                    cursor: pointer;"
+             onclick="navigator.clipboard.writeText('{{.NewSecretNote}}');
+                      behaviors.Show.fadingTooltip(this,`copied !`);"
+        >
+        <div>
+            <span class="<small> boxed-text ok color border bg"
+            >{{.NewSecretNote}}</span>
+        </div>
+    </p>
+    <form>
+        <div class="bad bg color border align-all">
+            <div id="confirmCheckbox" class="checkbox"
+                 onclick="let box = this.parentElement;
+                          box.classList.remove('bad');
+                          box.classList.add('ok');
+                          this.dataset.checked = 'true';
+                          this.classList.add('checked');
+                          this.style.cursor = 'default';
+                          this.onclick = null;
+                          if (document.querySelector('#confirmNote').readOnly) {
+                              document.querySelector('#confirmButton').disabled = false;
+                          }"
+            ></div>
+            <span>
+                <strong>I have saved the new secret note.</strong><br>
+                I understand that if I lose it, I will lose access to any remaining balance and nobody will be able to help me
+            </span>
+        </div>
+        <p>
+            <textarea
+                name="note" id="confirmNote"
+                class="wide bad border bg border"
+                placeholder="Copy here the new secret note to confirm you saved it"
+                onpaste="setTimeout(() => { validateNote(this) }, 0)"
+                onblur="if (this.value) validateNote(this)"
+            ></textarea>
+        <p>
+            <button id="confirmButton" type="submit" class="big" disabled>
+                Confirm
+            </button>
+        </p>
+    </form>
+</figure>
+<script>
+    function validateNote(elem) {
+        if (elem.value.trim() !== '{{.NewSecretNote}}') {
+            elem.value = '';
+            elem.placeholder = 'The note you pasted does not match the new secret note';
+        } else {
+            elem.classList.remove('bad');
+            elem.classList.add('ok');
+            elem.classList.add('<small>');
+            elem.setAttribute('readonly', true);
+            if (document.querySelector('#confirmCheckbox').dataset.checked) {
+                document.querySelector('#confirmButton').disabled = false;
+            }
+        }
+    }
+</script>
+{{end}}

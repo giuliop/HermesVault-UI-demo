@@ -3,5 +3,6 @@ js bundle before release
 
 Don't use CDNs for js/css in production
 
+Prevent submit buttons to fire again before receiving response
 
-
+Add dark mode toggle
