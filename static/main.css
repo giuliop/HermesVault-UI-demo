@@ -15,6 +15,7 @@ body {
 h1.title {
     font-size: 36px;
     font-weight: 700;
+    text-align: center;
 }
 
 .tab-list {
@@ -54,7 +55,6 @@ textarea::placeholder {
 
 .progress-indicator {
     display: none;
-    position: relative;
 }
 .htmx-request .progress-indicator {
     display: block;
@@ -154,4 +154,19 @@ img.centered {
 .checkbox.checked {
     background-color: transparent;
     color: green
+}
+
+.demobar {
+    position: sticky;
+    z-index: 5;
+	top: 0;
+	left: 0;
+	right: 0;
+    height: 25px;
+    background: darkred;
+    color: #f0f0f0;
+    font-weight: bold;
+    font-size: 16px;
+    width: 100%;
+    text-align: center;
 }

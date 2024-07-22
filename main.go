@@ -9,8 +9,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
+
+	"github.com/algorand/go-algorand-sdk/types"
 )
 
 var (
@@ -26,6 +29,29 @@ const (
 )
 
 type Input string
+type Address struct {
+	Native types.Address
+	Start  string
+	Middle string
+	End    string
+}
+type Amount struct {
+	Algostring string
+	Microalgos uint64
+}
+type Note struct {
+	Amount uint64
+	K      [31]byte
+	R      [31]byte
+	Text   string
+}
+type WithdrawData struct {
+	Amount  *Amount
+	Fee     *Amount
+	Address *Address
+	Note    *Note
+	NewNote *Note
+}
 
 func init() {
 	// Helper function to create a map for passing multiple values to templates
@@ -76,7 +102,7 @@ func main() {
 				http.Error(w, "Bad Request", http.StatusBadRequest)
 				return
 			}
-			amount, errAmount := Input(r.FormValue("amount")).toMicroAlgo()
+			amount, errAmount := Input(r.FormValue("amount")).toAmount()
 			address, errAddress := Input(r.FormValue("address")).toAddress()
 			errorMsg := ""
 			if errAmount != nil {
@@ -91,8 +117,8 @@ func main() {
 				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
 				return
 			}
-			fmt.Fprintf(w, "You want to deposit %d microalgos from %s\n",
-				amount, address)
+			fmt.Fprintf(w, "You want to deposit %s algo from %s\n",
+				amount.Algostring, address.Native.String())
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
@@ -101,14 +127,17 @@ func main() {
 	http.HandleFunc("/withdraw", func(w http.ResponseWriter, r *http.Request) {
 		//w.Header().Set("Cache-Control", cacheControl)
 		if true {
-			data := map[string]interface{}{
-				"Amount":           "100",
-				"Fee":              "1",
-				"AddressFirstFive": "LXUTB",
-				"AddressMiddle":    "24U5OES3D4ZOOQKYY6DISYD7TIYCT5XXJKC36HUT4XLLMGVC",
-				"AddressLastFive":  "QJQ3A",
-				"Note":             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-				"NewSecretNote":    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+			amount, _ := Input("100").toAmount()
+			address, _ := Input("LXUTB24U5OES3D4ZOOQKYY6DISYD7TIYCT5XXJKC36HUT4XLLMGVCORKNM").toAddress()
+			note, _ := Input(strings.Repeat("aa", 70)).toNote()
+			newNote, _ := generateNewNote(amount, note)
+
+			data := WithdrawData{
+				Amount:  amount,
+				Fee:     amount.Fee(),
+				Address: address,
+				Note:    note,
+				NewNote: newNote,
 			}
 			if err := tmplConfirmWithdrawal.Execute(w, data); err != nil {
 				log.Printf("Error executing success template: %v", err)
@@ -127,9 +156,9 @@ func main() {
 				log.Printf("Error parsing form: %v", err)
 				http.Error(w, "Bad Request", http.StatusBadRequest)
 			}
-			amount, errAmount := Input(r.FormValue("amount")).toMicroAlgo()
+			amount, errAmount := Input(r.FormValue("amount")).toAmount()
 			address, errAddress := Input(r.FormValue("address")).toAddress()
-			noteK, noteR, errNote := Input(r.FormValue("note")).toSecretNote()
+			note, errNote := Input(r.FormValue("note")).toNote()
 			errorMsg := ""
 			if errAmount != nil {
 				log.Printf("Error parsing withdrawal amount: %v", errAmount)
@@ -143,18 +172,24 @@ func main() {
 				log.Printf("Error parsing withdrawal note: %v", errNote)
 				errorMsg += "Invalid secret note"
 			}
-			// if errorMsg != "" {
-			// 	http.Error(w, errorMsg, http.StatusUnprocessableEntity)
-			// 	return
-			// }
-			isValid := verifyWithdrawal(amount, address, noteK, noteR)
+			if errorMsg != "" {
+				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
+				return
+			}
+			isValid := verifyWithdrawal(amount, address, note)
 			if isValid {
-				data := map[string]interface{}{
-					"Amount":  Input(r.FormValue("amount")),
-					"Address": Input(r.FormValue("address")),
-					"Note":    Input(r.FormValue("note")),
-					// TODO: Replace with actual logic for new note
-					"NewSecretNote": "generatedNewSecretNote",
+				newNote, err := generateNewNote(amount, note)
+				if err != nil {
+					log.Printf("Error generating new note: %v", err)
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
+				}
+				data := WithdrawData{
+					Amount:  amount,
+					Fee:     amount.Fee(),
+					Address: address,
+					Note:    note,
+					NewNote: newNote,
 				}
 				if err := tmplConfirmWithdrawal.Execute(w, data); err != nil {
 					log.Printf("Error executing success template: %v", err)
@@ -169,6 +204,17 @@ func main() {
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
+	})
+
+	http.HandleFunc("/confirm-withdraw", func(w http.ResponseWriter, r *http.Request) {
+		// read the form data and log it
+		if err := r.ParseForm(); err != nil {
+			log.Printf("Error parsing form: %v", err)
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+		time.Sleep(2 * time.Second)
+		fmt.Fprintf(w, "Note: %v\n", Input(r.FormValue("note")))
 	})
 
 	// Serve static files from the "static" directory

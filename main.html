@@ -20,6 +20,11 @@
 
 <body hx-boost="true"
       hx-ext="response-targets">
+      <div class="demobar">
+        <span>
+            This is a demo only !
+        </span>
+    </div>
     <h1 class="title">Hermes Vault</h1>
     <div id="ui"
          hx-get="/withdraw"
@@ -35,7 +40,7 @@
 
 {{define "tabButton"}}
 <button hx-get="/{{.url}}"
-        class="{{if eq .selected .url}}selected{{end}}"
+        {{if eq .selected .url}}class="selected" disabled{{end}}
         role="tab"
         aria-selected="{{if eq .selected .url}}true{{else}}false{{end}}"
         aria-controls="tab-content">
@@ -44,7 +49,7 @@
 {{end}}
 
 {{define "tabList"}}
-<div class="tab-list" role="tablist" hx-swap="innerHTML settle:0s">
+<div class="tab-list" role="tablist" hx-swap="settle:0s">
     {{template "tabButton" (dict "url" "deposit" "title" "Deposit" "selected" .)}}
     {{template "tabButton" (dict "url" "withdraw" "title" "Withdraw" "selected" .)}}
 </div>
