@@ -8,3 +8,5 @@ Prevent submit buttons to fire again before receiving response
 Add dark mode toggle
 
 what happens with errors? e.g., with http.StatusInternalServerError ?
+
+am i leaking memory settings events?

@@ -3,8 +3,10 @@
     <figcaption class="big">
         <strong>Withdrawal Confirmation</strong>
     </figcaption>
-    <form hx-post="/confirm-withdraw" hx-indicator="#spinner"
-          hx-target="this">
+    <form hx-post="/confirm-withdraw"
+          hx-indicator="#spinner"
+          hx-target="this"
+    >
         <p>
             <span class="row">
                 <span class="bold">
@@ -81,7 +83,14 @@
                 onblur="if (this.value) validateNote(this)"
             ></textarea>
         <p>
-            <button id="confirmButton" type="submit" class="big" disabled>
+            <button id="confirmButton" type="submit" class="big" disabled
+                    onclick="setTimeout(() => {
+                                document.querySelector('#spinner');
+                                window.scrollTo({ top: spinner.offsetTop
+                                                       - window.innerHeight / 2,
+                                                  behavior: 'smooth' })
+                                }, 0)"
+            >
                 Confirm
             </button>
         </p>
