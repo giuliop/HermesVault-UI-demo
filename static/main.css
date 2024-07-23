@@ -1,5 +1,5 @@
 /* Apply minimum width if the device width is at least that */
-@media (min-width: 400px) {
+@media (min-width: 500px) {
     input {
             min-width: 250px;
     }
@@ -106,9 +106,10 @@ img.centered {
     display: none;
 }
 
+/* .has-info adds a ? icon next to an element to show a tooltip on hover */
 .has-info {
     display: inline-block;
-    position: relative; /* Necessary for correct positioning of the tooltip */
+    position: relative;
 }
 
 .has-info::before {
@@ -132,6 +133,7 @@ img.centered {
     display: block; /* Show tooltip on hover */
 }
 
+/* .checkbox is a custom checkbox element */
 .checkbox {
     width: 20px;
     height: 20px;
@@ -149,11 +151,15 @@ img.centered {
 
 .checkbox::after {
     content: '✓';
+    /* ideally we would add `display: none;` to make the checkmark invisible
+     * until the checkbox is checked, but mobile safari collapses the box width
+     * if empty, so we just make the checkmark the same color as the background
+     */
 }
 
-.checkbox.checked {
-    background-color: transparent;
-    color: green
+.checkbox.checked::after {
+    display: block;
+    color: green;
 }
 
 .demobar {

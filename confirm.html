@@ -84,12 +84,7 @@
             ></textarea>
         <p>
             <button id="confirmButton" type="submit" class="big" disabled
-                    onclick="setTimeout(() => {
-                                document.querySelector('#spinner');
-                                window.scrollTo({ top: spinner.offsetTop
-                                                       - window.innerHeight / 2,
-                                                  behavior: 'smooth' })
-                                }, 0)"
+                    onclick="behaviors.Show.scrollTo('#spinner')"
             >
                 Confirm
             </button>

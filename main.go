@@ -117,7 +117,7 @@ func main() {
 				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
 				return
 			}
-			fmt.Fprintf(w, "You want to deposit %s algo from %s\n",
+			fmt.Fprintf(w, "<div class='box' style='max-width:90vw;'>You want to deposit %s algo from %s</div>",
 				amount.Algostring, address.Native.String())
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -126,7 +126,7 @@ func main() {
 
 	http.HandleFunc("/withdraw", func(w http.ResponseWriter, r *http.Request) {
 		//w.Header().Set("Cache-Control", cacheControl)
-		if true {
+		if false {
 			amount, _ := Input("100").toAmount()
 			address, _ := Input("LXUTB24U5OES3D4ZOOQKYY6DISYD7TIYCT5XXJKC36HUT4XLLMGVCORKNM").toAddress()
 			note, _ := Input(strings.Repeat("aa", 70)).toNote()

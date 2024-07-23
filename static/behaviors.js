@@ -39,31 +39,44 @@ const Trim = {
 }
 
 const Show = {
-    fadingTooltip: function (elem, message) {
+    /**
+     * Show a tooltip for `elem` with a `message` that fades out after `duration`
+     */
+    fadingTooltip: function (elem, message, duration = 1000) {
         let tooltip = document.createElement('div');
 
-        // Set the tooltip text
         tooltip.classList.add('tooltip');
         tooltip.textContent = message;
 
-        // Get the bounding box of the target element
         let boundingBox = elem.getBoundingClientRect();
-
-        // Position the tooltip
         tooltip.style.position = 'absolute';
         tooltip.style.left = `${boundingBox.left + window.scrollX}px`;
         tooltip.style.top = `${boundingBox.top + window.scrollY}px`;
         tooltip.style.display = 'block';
 
-
-        // Add the tooltip to the body
         document.body.appendChild(tooltip);
-
-        // Remove the tooltip after 2 seconds
         setTimeout(() => {
             document.body.removeChild(tooltip);
-        }, 1000);;
+        }, duration);;
     },
+
+    /**
+     * Scroll to the element defined by `selector`
+     * Set `afterEvent` to false to scroll before the potential triggering event
+     */
+    scrollTo: function(selector, afterEvent = true, scrollType = 'smooth') {
+        let elem = document.querySelector(selector);
+        let f = () => {
+            window.scrollTo({ top: elem.offsetTop - window.innerHeight / 2,
+                              behavior: scrollType})
+        }
+        if (afterEvent) {
+            setTimeout(f, 0);
+        }
+        else {
+            f();
+        }
+    }
 }
 
 const behaviors = {

@@ -27,12 +27,11 @@
     </div>
     <h1 class="title">Hermes Vault</h1>
     <div id="ui"
-         hx-get="/withdraw"
+         hx-get="/deposit"
          hx-trigger="load delay:100ms"
          hx-target="#ui"
          hx-swap="innerHTML"
-    >
-    </div>
+    ></div>
 </body>
 
 </html>
@@ -62,6 +61,7 @@
 	<form hx-post="/deposit"
           hx-target-error="#errorBox"
           hx-indicator="#spinner"
+          hx-swap="show:#errorBox:top"
           hx-on::config-request="behaviors.Trim.restoreAll(event)"
           data-wallet-form>
         <p class="row">
@@ -83,7 +83,8 @@
                    onfocus="behaviors.Trim.restore(this)" autocomplete="off" readonly >
         </p>
         <button type="submit" data-wallet-submit-button
-                onclick="document.querySelector('#errorBox').style.display='none'"
+                onclick="document.querySelector('#errorBox').style.display='none';
+                         behaviors.Show.scrollTo('#spinner');"
         >
             Deposit
         </button>
@@ -108,8 +109,7 @@
             tab = document.querySelector('#tab-content');
             width = window.getComputedStyle(tab).width;
             event.target.style.width=width;
-            event.target.style.display=''
-    "
+            event.target.style.display=''"
 >
     <strong class="block titlebar">Error</strong>
 </div>
@@ -123,6 +123,7 @@
           hx-target-error="#errorBox"
           hx-on::config-request="behaviors.Trim.restoreAll(event)"
           hx-indicator="#spinner"
+          hx-swap="show:#errorBox:top"
 		>
         <p class="row">
             <label for="withdrawAmount">
@@ -155,7 +156,8 @@
                    required>
         </p>
         <button type="submit"
-                onclick="document.querySelector('#errorBox').style.display='none'"
+                onclick="document.querySelector('#errorBox').style.display='none'
+                         behaviors.Show.element('#spinner')"
         >
             Withdraw
         </button>
