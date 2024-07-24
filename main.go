@@ -20,6 +20,7 @@ var (
 	tmplMain              *template.Template
 	tmplDeposit           *template.Template
 	tmplWithdraw          *template.Template
+	tmplConfirmDeposit    *template.Template
 	tmplConfirmWithdrawal *template.Template
 )
 
@@ -52,6 +53,11 @@ type WithdrawData struct {
 	Note    *Note
 	NewNote *Note
 }
+type DepositData struct {
+	Amount  *Amount
+	Address *Address
+	NewNote *Note
+}
 
 func init() {
 	// Helper function to create a map for passing multiple values to templates
@@ -70,6 +76,9 @@ func init() {
 			}
 			return dict, nil
 		},
+		"safeHTMLAttr": func(s string) template.HTMLAttr {
+			return template.HTMLAttr(s)
+		},
 	}
 	tmpl := template.Must(template.New("main").Funcs(funcMap).ParseFiles(
 		"main.html", "confirm.html",
@@ -78,6 +87,7 @@ func init() {
 	tmplDeposit = tmpl.Lookup("depositForm")
 	tmplWithdraw = tmpl.Lookup("withdrawForm")
 	tmplConfirmWithdrawal = tmpl.Lookup("confirmWithdrawal")
+	tmplConfirmDeposit = tmpl.Lookup("confirmDeposit")
 }
 
 func main() {
@@ -117,8 +127,22 @@ func main() {
 				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
 				return
 			}
-			fmt.Fprintf(w, "<div class='box' style='max-width:90vw;'>You want to deposit %s algo from %s</div>",
-				amount.Algostring, address.Native.String())
+			newNote, err := generateNote(amount.Microalgos)
+			if err != nil {
+				log.Printf("Error generating new note: %v", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+			data := DepositData{
+				Amount:  amount,
+				Address: address,
+				NewNote: newNote,
+			}
+
+			if err := tmplConfirmDeposit.Execute(w, data); err != nil {
+				log.Printf("Error executing success template: %v", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
 		default:
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		}
@@ -130,7 +154,7 @@ func main() {
 			amount, _ := Input("100").toAmount()
 			address, _ := Input("LXUTB24U5OES3D4ZOOQKYY6DISYD7TIYCT5XXJKC36HUT4XLLMGVCORKNM").toAddress()
 			note, _ := Input(strings.Repeat("aa", 70)).toNote()
-			newNote, _ := generateNewNote(amount, note)
+			newNote, _ := generateChangeNote(amount, note)
 
 			data := WithdrawData{
 				Amount:  amount,
@@ -178,7 +202,7 @@ func main() {
 			}
 			isValid := verifyWithdrawal(amount, address, note)
 			if isValid {
-				newNote, err := generateNewNote(amount, note)
+				newNote, err := generateChangeNote(amount, note)
 				if err != nil {
 					log.Printf("Error generating new note: %v", err)
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -206,15 +230,58 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/confirm-deposit", func(w http.ResponseWriter, r *http.Request) {
+		// read the form data and log it
+		if err := r.ParseForm(); err != nil {
+			log.Printf("Error parsing form: %v", err)
+			http.Error(w, "Bad Request. Your deposit was not processed.",
+				http.StatusBadRequest)
+			return
+		}
+		// TODO: send the deposit transaction to the Algorand network
+		time.Sleep(2 * time.Second)
+		html := `<dialog class="modal">
+				   <h1>Deposit successful</h1>
+				     <p>
+					   You can use your new secret note to withdraw your funds in the future.
+					</p>
+					<button hx-get="/withdraw"
+							onclick="this.parentElement.close()">
+					  Close
+					</button>
+				 </dialog>
+				 <script>
+				   document.querySelectorAll('dialog')[0].showModal()
+				 </script>
+				`
+		fmt.Fprint(w, html)
+	})
+
 	http.HandleFunc("/confirm-withdraw", func(w http.ResponseWriter, r *http.Request) {
 		// read the form data and log it
 		if err := r.ParseForm(); err != nil {
 			log.Printf("Error parsing form: %v", err)
-			http.Error(w, "Bad Request", http.StatusBadRequest)
+			http.Error(w, "Bad Request. Your withdrawal was not processed.",
+				http.StatusBadRequest)
 			return
 		}
+		// TODO: send the withdrawal transaction to the Algorand network
 		time.Sleep(2 * time.Second)
-		fmt.Fprintf(w, "Note: %v\n", Input(r.FormValue("note")))
+		html := `<dialog class="modal">
+				   <h1>Withdrawal successful</h1>
+				     <p>
+					   You can use your new secret note to withdraw any remaining balance in the future.
+					</p>
+					<button hx-get="/withdraw"
+							onclick="this.parentElement.close()">
+					  Close
+					</button>
+				 </dialog>
+				 <script>
+				   document.querySelectorAll('dialog')[0].showModal()
+				 </script>
+				`
+		fmt.Fprint(w, html)
 	})
 
 	// Serve static files from the "static" directory

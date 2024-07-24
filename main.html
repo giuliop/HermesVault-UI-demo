@@ -82,7 +82,8 @@
                    onblur="behaviors.Trim.trim(this)"
                    onfocus="behaviors.Trim.restore(this)" autocomplete="off" readonly >
         </p>
-        <button type="submit" data-wallet-submit-button
+        <button type="submit" data-wallet-deposit-button
+                class = "wide"
                 onclick="document.querySelector('#errorBox').style.display='none';
                          behaviors.Show.scrollTo('#spinner');"
         >
@@ -90,29 +91,28 @@
         </button>
     </form>
     <div>
-        <button class="connect-wallet" data-wallet-connect-button>
+        <button class="connect-wallet wide" data-wallet-connect-button>
             Connect Wallet
         </button>
     </div>
 </div>
+{{template "spinner"}}
 {{template "errorBox"}}
 {{end}}
 
-{{define "errorBox"}}
+{{define "spinner"}}
 <div id="spinner" class="progress-indicator">
     <img class="centered" src="/static/mathematician.svg">
 </div>
+{{end}}
+
+{{define "errorBox"}}
 <div id="errorBox"
     class="box bad"
     style="display:none;"
-    hx-on::after-swap="
-            tab = document.querySelector('#tab-content');
-            width = window.getComputedStyle(tab).width;
-            event.target.style.width=width;
-            event.target.style.display=''"
->
-    <strong class="block titlebar">Error</strong>
-</div>
+    {{if .}}{{.}}{{end}}
+    hx-on::after-swap="event.target.style.display=''"
+></div>
 {{end}}
 
 {{define "withdrawForm"}}
@@ -156,12 +156,14 @@
                    required>
         </p>
         <button type="submit"
+                class="wide"
                 onclick="document.querySelector('#errorBox').style.display='none'
-                         behaviors.Show.element('#spinner')"
+                         behaviors.Show.scrollTo('#spinner')"
         >
             Withdraw
         </button>
     </form>
 </div>
+{{template "spinner"}}
 {{template "errorBox"}}
 {{end}}

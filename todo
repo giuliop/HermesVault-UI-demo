@@ -1,12 +1,7 @@
-Currently using a static, full bundle for pera-connect. Use webpack to optimize
-js bundle before release
+Currently using a static, full bundle for pera-connect. Use webpack to optimize js bundle before release
 
 Don't use CDNs for js/css in production
 
 Prevent submit buttons to fire again before receiving response
 
-Add dark mode toggle
-
 what happens with errors? e.g., with http.StatusInternalServerError ?
-
-am i leaking memory settings events?

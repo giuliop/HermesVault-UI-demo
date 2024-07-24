@@ -33,9 +33,10 @@ func (input Input) toAmount() (*Amount, error) {
 			return nil, fmt.Errorf("invalid decimal part: %w", err)
 		}
 	}
+	microalgos := integer*1_000_000 + decimal
 	return &Amount{
-		Algostring: string(input),
-		Microalgos: integer*1_000_000 + decimal,
+		Algostring: microAlgosToAlgoString(microalgos),
+		Microalgos: microalgos,
 	}, nil
 }
 
@@ -89,13 +90,11 @@ func verifyWithdrawal(amount *Amount, address *Address, note *Note,
 	// sleep for 3 sec
 	time.Sleep(3 * time.Second)
 	// return true is amount is 100 algos, false otherwise
-	return amount.Microalgos == 100_000_000
+	return amount.Microalgos != 1_000_000
 }
 
-// TODO: encoding/binary this function
-func generateNewNote(withdrawalAmount *Amount, depositNote *Note) (*Note, error) {
-	change := (depositNote.Amount - withdrawalAmount.Microalgos -
-		calculateFee(withdrawalAmount.Microalgos))
+// generateNote generates a new note for a given amount
+func generateNote(amount uint64) (*Note, error) {
 	k, errK := generateRandom31()
 	r, errR := generateRandom31()
 	if errK != nil || errR != nil {
@@ -103,12 +102,24 @@ func generateNewNote(withdrawalAmount *Amount, depositNote *Note) (*Note, error)
 			errK, errR)
 	}
 	return &Note{
-		Amount: change,
+		Amount: amount,
 		K:      k,
 		R:      r,
 		// fmt.Sprintf in hex format results in big-endian representation
-		Text: fmt.Sprintf("%016x%x%x", change, k, r),
+		Text: fmt.Sprintf("%016x%x%x", amount, k, r),
 	}, nil
+}
+
+// generateDepositNote generates a new deposit note for the change amount
+// after a withdrawal
+func generateChangeNote(withdrawalAmount *Amount, fromNote *Note) (*Note, error) {
+	change := (fromNote.Amount - withdrawalAmount.Microalgos -
+		calculateFee(withdrawalAmount.Microalgos))
+	note, err := generateNote(change)
+	if err != nil {
+		return nil, fmt.Errorf("error generating note: %v", err)
+	}
+	return note, nil
 }
 
 // generateRandom31 generates a cryptographically secure random 31-byte array
@@ -133,10 +144,21 @@ func calculateFee(amount uint64) uint64 {
 // Fee calculates the fee for a withdrawal amount
 func (withdrawalAmount *Amount) Fee() *Amount {
 	fee := calculateFee(withdrawalAmount.Microalgos)
-	quotient := fee / 1_000_000
-	remainder := fee % 1_000_000
 	return &Amount{
-		Algostring: fmt.Sprintf("%d.%06d", quotient, remainder),
+		Algostring: microAlgosToAlgoString(fee),
 		Microalgos: fee,
 	}
+}
+
+// microAlgosToAlgoString converts microalgos (uint64) to a string representing algos.
+func microAlgosToAlgoString(microalgos uint64) string {
+	const microAlgosPerAlgo = 1_000_000
+	wholeAlgos := microalgos / microAlgosPerAlgo
+	remainingMicroAlgos := microalgos % microAlgosPerAlgo
+	s := fmt.Sprintf("%d.%06d", wholeAlgos, remainingMicroAlgos)
+	s = strings.TrimRight(s, "0")
+	if s[len(s)-1] == '.' {
+		s = s[:len(s)-1]
+	}
+	return s
 }

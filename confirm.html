@@ -1,21 +1,36 @@
+{{define "confirmDeposit"}}
+{{template "confirm" (dict "type" "deposit" "data" .)}}
+{{end}}
+
+
 {{define "confirmWithdrawal"}}
+{{template "confirm" (dict "type" "withdraw" "data" .)}}
+{{end}}
+
+{{define "confirm"}}
 <figure class="container">
     <figcaption class="big">
-        <strong>Withdrawal Confirmation</strong>
+        <strong>
+            {{if eq .type "deposit"}}Deposit Confirmation{{end}}
+            {{if eq .type "withdraw"}}Withdrawal Confirmation{{end}}
+        </strong>
     </figcaption>
-    <form hx-post="/confirm-withdraw"
-          hx-indicator="#spinner"
-          hx-target="this"
+    <form
+        {{if eq .type "deposit"}} hx-post="/confirm-deposit" {{end}}
+        {{if eq .type "withdraw"}} hx-post="/confirm-withdraw" {{end}}
+        hx-indicator="#spinner"
     >
         <p>
             <span class="row">
                 <span class="bold">
-                    Amount to withdraw
+                    {{if eq .type "deposit"}}Amount to deposit{{end}}
+                    {{if eq .type "withdraw"}}Amount to withdraw{{end}}
                 </span>
                 <span>
-                    {{.Amount.Algostring}} algo
+                    {{.data.Amount.Algostring}} algo
                 </span>
             </span>
+            {{if eq .type "withdraw"}}
             <span class="row">
                 <span class="bold">
                     Protocol Fee
@@ -26,21 +41,25 @@
                         </span>
                 </span>
                 <span>
-                    {{.Fee.Algostring}} algo
+                    {{.data.Fee.Algostring}} algo
                 </span>
             </span>
+            {{end}}
         </p>
         <p>
             <span class="bold">
-                Recipient address
+                {{if eq .type "deposit"}}From address{{end}}
+                {{if eq .type "withdraw"}}Recipient address{{end}}
             </span>
             <span class="boxed-text border">
-            <span class="bold">{{.Address.Start}}</span><span class="<small>">{{.Address.Middle}}</span><span class="bold">{{.Address.End}}</span>
+            <span class="bold">{{.data.Address.Start}}</span><span class="<small>">{{.data.Address.Middle}}</span><span class="bold">{{.data.Address.End}}</span>
             </span>
         </p>
         <p class="align-all">
             <span class="bold">
-                New secret note to spend any remaining balance
+                New secret note to withdraw
+                {{if eq .type "deposit"}} deposited funds in the future{{end}}
+                {{if eq .type "withdraw"}} any remaining balance in the future{{end}}
             </span>
             <img src="/static/copy.svg"
                  alt="Copy to Clipboard"
@@ -48,12 +67,12 @@
                  style="width: 30px; height: 30px;
                         align-self: flex-start;
                         cursor: pointer;"
-                 onclick="navigator.clipboard.writeText('{{.NewNote.Text}}');
+                 onclick="navigator.clipboard.writeText('{{.data.NewNote.Text}}');
                           behaviors.Show.fadingTooltip(this,`copied !`);"
             >
             <div>
                 <span class="<small> boxed-text ok color border bg"
-                >{{.NewNote.Text}}</span>
+                >{{.data.NewNote.Text}}</span>
             </div>
         </p>
         <div class="bad bg color border align-all">
@@ -71,7 +90,10 @@
             ></div>
             <span>
                 <strong>I have saved the new secret note.</strong><br>
-                I understand that if I lose it, I will lose access to any remaining balance and nobody will be able to help me
+                I understand that if I lose it, I will lose access to
+                {{if eq .type "deposit"}} my funds {{end}}
+                {{if eq .type "withdraw"}} any remaining balance {{end}}
+                and nobody will be able to help me
             </span>
         </div>
         <p>
@@ -83,20 +105,34 @@
                 onblur="if (this.value) validateNote(this)"
             ></textarea>
         <p>
-            <button id="confirmButton" type="submit" class="big" disabled
-                    onclick="behaviors.Show.scrollTo('#spinner')"
-            >
-                Confirm
-            </button>
+        {{if eq .type "deposit"}}
+        <input type="hidden" name="signedTxn" value=""
+               data-wallet-signedTxn-input>
+        {{end}}
+        <button id="confirmButton" type="submit" class="big wide" disabled
+            {{if eq .type "deposit"}}
+                data-wallet-confirm-deposit-button
+                onclick="document.querySelector('#errorBox').style.display='none';
+                         behaviors.Show.scrollTo('#spinner')"
+            {{else}}
+                onclick="document.querySelector('#errorBox').style.display='none';
+                         behaviors.Show.scrollTo('#spinner')"
+            {{end}}
+        >
+            Confirm
+        </button>
         </p>
     </form>
 </figure>
-<div id="spinner" class="progress-indicator">
-    <img class="centered" src="/static/mathematician.svg">
-</div>
+{{template "spinner"}}
+{{if eq .type "deposit"}}
+    {{template "errorBox" (safeHTMLAttr "data-wallet-errorBox")}}
+{{end}}
+
+
 <script>
     function validateNote(elem) {
-        if (elem.value.trim() !== '{{.NewNote.Text}}') {
+        if (elem.value.trim() !== '{{.data.NewNote.Text}}') {
             elem.value = '';
             elem.placeholder = 'The note you pasted does not match the new secret note';
         } else {

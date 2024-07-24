@@ -5,19 +5,19 @@ let accountAddress = "";
 
 function updateUI(accounts) {
     const addressInput = document.querySelector('[data-wallet-address]');
-    const submitButton = document.querySelector('[data-wallet-submit-button]');
+    const depositButton = document.querySelector('[data-wallet-deposit-button]');
     const walletButton = document.querySelector('[data-wallet-connect-button]');
     if (accounts.length) {
         accountAddress = accounts[0];
         addressInput.value = accountAddress;
         // Trigger the blur event to trim the address in the UI
         addressInput.dispatchEvent(new Event('blur'));
-        submitButton.classList.remove('hidden');
+        depositButton.classList.remove('hidden');
         walletButton.textContent = "Disconnect Wallet";
     } else {
         accountAddress = "";
         addressInput.value = "";
-        submitButton.classList.add('hidden');
+        depositButton.classList.add('hidden');
         walletButton.textContent = "Connect Wallet";
     }
 }
@@ -59,8 +59,8 @@ function handleDisconnectWalletClick(event) {
     updateUI([]);
 }
 
-// trigger on wallet button click
-document.addEventListener('click', (event) => {
+// trigger on connet wallet button and confirm deposit button
+document.addEventListener('click', async (event) => {
     if (event.target.matches('[data-wallet-connect-button]')) {
         event.preventDefault();
         if (accountAddress) {
@@ -69,10 +69,32 @@ document.addEventListener('click', (event) => {
             handleConnectWalletClick(event);
         }
     }
+    if (event.target.matches('[data-wallet-confirm-deposit-button]')) {
+        event.preventDefault();
+        let data = [
+            { data: "Deposit transaction",
+              message: "This is just a demo so we sign dummy data, in the real application we'll sign the deposit transaction"
+            }
+        ]
+        try {
+            const signed = await peraWallet.signData(data, accountAddress)
+            console.log(signed);
+            document.querySelector('[data-wallet-signedTxn-input]').value = (
+                 signed);
+            const form = event.target.closest('form');
+            htmx.trigger(form, 'submit');
+        } catch (error) {
+            console.log(error);
+            let errorBox = document.querySelector('[data-wallet-errorBox]');
+            errorBox.innerHTML = (
+                "Error signing the transaction, please try again");
+            htmx.trigger(errorBox, 'htmx:after-swap');
+        }
+    };
 });
 
 // trigger on wallet form load
-document.body.addEventListener('htmx:load', (event) => {
+document.addEventListener('htmx:load', (event) => {
     if (event.detail.elt.matches('[data-wallet]')) {
         if (!accountAddress) {
             reconnectSession();
@@ -81,7 +103,6 @@ document.body.addEventListener('htmx:load', (event) => {
         }
     }
 });
-
 
 // Make functions and variables accessible from the console for debugging
 // window.peraWallet = peraWallet;
