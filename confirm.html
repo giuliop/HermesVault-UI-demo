@@ -36,7 +36,7 @@
                     Protocol Fee
                         <span class="has-info">
                             <span class="tooltip">
-                                0.1% of withdrawal<br>(1 algo minimum fee)
+                                0.1% of withdrawal<br>(0.1 algo minimum fee)
                             </span>
                         </span>
                 </span>
@@ -128,6 +128,10 @@
 {{if eq .type "deposit"}}
     {{template "errorBox" (safeHTMLAttr "data-wallet-errorBox")}}
 {{end}}
+{{if eq .type "withdraw"}}
+    {{template "errorBox"}}
+{{end}}
+
 
 
 <script>

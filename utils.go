@@ -13,6 +13,9 @@ import (
 	"github.com/algorand/go-algorand-sdk/types"
 )
 
+const BaseFeeDivisor = 1000 // 0.1% base fee
+const MinimumFee = 100_000  // microalgos
+
 // stringToMicroAlgo converts an input representing an algo amount to an Amount
 func (input Input) toAmount() (*Amount, error) {
 	intStr, decStr, hasDecimal := strings.Cut(string(input), ".")
@@ -134,9 +137,9 @@ func generateRandom31() ([31]byte, error) {
 
 // calculateFee calculates the fee for a given amount; the fee is 0.1% of the amount with a minimum of 1000 microalgos
 func calculateFee(amount uint64) uint64 {
-	fee := amount / 1000
-	if fee < 1000 {
-		fee = 1000
+	fee := amount / BaseFeeDivisor
+	if fee < MinimumFee {
+		fee = MinimumFee
 	}
 	return fee
 }
