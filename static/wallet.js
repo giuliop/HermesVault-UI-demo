@@ -78,7 +78,6 @@ document.addEventListener('click', async (event) => {
         ]
         try {
             const signed = await peraWallet.signData(data, accountAddress)
-            console.log(signed);
             document.querySelector('[data-wallet-signedTxn-input]').value = (
                  signed);
             const form = event.target.closest('form');
