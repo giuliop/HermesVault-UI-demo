@@ -42,15 +42,12 @@ func (input Input) ToAmount() (*Amount, error) {
 }
 
 // toAddress converts an input to an Address
-func (input Input) ToAddress() (*Address, error) {
-	a := Address{}
-	native, err := types.DecodeAddress(string(input))
+func (input Input) ToAddress() (Address, error) {
+	address, err := types.DecodeAddress(string(input))
 	if err != nil {
-		return nil, fmt.Errorf("error decoding address: %v", err)
+		return "", fmt.Errorf("error decoding address: %v", err)
 	}
-	a.Native = native
-	a.Start, a.Middle, a.End = SplitEnds(native.String(), 5)
-	return &a, nil
+	return Address(address.String()), nil
 }
 
 // toNote converts an input to a Note

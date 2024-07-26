@@ -18,6 +18,8 @@
     <form
         {{if eq .type "deposit"}} hx-post="/confirm-deposit" {{end}}
         {{if eq .type "withdraw"}} hx-post="/confirm-withdraw" {{end}}
+        hx-target-error="#errorBox"
+        hx-swap="show:#errorBox:top"
         hx-indicator="#spinner"
     >
         <p>
@@ -109,6 +111,8 @@
         <input type="hidden" name="signedTxn" value=""
                data-wallet-signedTxn-input>
         {{end}}
+        <input type="hidden" name="address" value="{{.data.Address.String}}">
+        <input type="hidden" name="amount" value="{{.data.Amount.Algostring}}">
         <button id="confirmButton" type="submit" class="big wide" disabled
             {{if eq .type "deposit"}}
                 data-wallet-confirm-deposit-button

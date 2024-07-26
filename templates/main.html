@@ -56,7 +56,8 @@
 
 {{define "depositForm"}}
 {{template "tabList" "deposit"}}
-<div id="tab-content" class="tab-content" role="tabpanel" data-wallet>
+<div idString="tab-content" class="tab-content" role="tabpanel" data-wallet>
+
 	<h2>Deposit</h2>
 	<form hx-post="/deposit"
           hx-target-error="#errorBox"

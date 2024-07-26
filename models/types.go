@@ -6,16 +6,10 @@ import (
 	"fmt"
 	"strings"
 	"webapp/config"
-
-	"github.com/algorand/go-algorand-sdk/types"
 )
 
-type Address struct {
-	Native types.Address
-	Start  string
-	Middle string
-	End    string
-}
+// Address represents a valid Algorand address
+type Address string
 
 type Amount struct {
 	Algostring string
@@ -32,15 +26,15 @@ type Note struct {
 type WithdrawData struct {
 	Amount  *Amount
 	Fee     *Amount
-	Address *Address
-	Note    *Note
+	Address Address
+	OldNote *Note
 	NewNote *Note
 }
 
 type DepositData struct {
 	Amount  *Amount
-	Address *Address
-	NewNote *Note
+	Address Address
+	Note    *Note
 }
 
 // Fee calculates the fee for a withdrawal amount
@@ -50,15 +44,6 @@ func (withdrawalAmount *Amount) Fee() *Amount {
 		Algostring: MicroAlgosToAlgoString(fee),
 		Microalgos: fee,
 	}
-}
-
-// SplitEnds splits a string into three parts: the first n characters, the middle
-// part, the last n characters
-func SplitEnds(s string, n int) (string, string, string) {
-	if len(s) <= 2*n {
-		return s, "", ""
-	}
-	return s[:n], s[n : len(s)-n], s[len(s)-n:]
 }
 
 // GenerateNote generates a new note for a given amount
@@ -120,4 +105,40 @@ func MicroAlgosToAlgoString(microalgos uint64) string {
 		s = s[:len(s)-1]
 	}
 	return s
+}
+
+func (a Address) Start() string {
+	return SplitEnds(string(a), config.NumCharsToHighlight, Start)
+}
+func (a Address) Middle() string {
+	return SplitEnds(string(a), config.NumCharsToHighlight, Middle)
+}
+func (a Address) End() string {
+	return SplitEnds(string(a), config.NumCharsToHighlight, End)
+}
+
+type part int
+
+const (
+	Start = iota
+	Middle
+	End
+)
+
+// SplitEnds splits a string into three parts: the first n characters, the middle
+// part, the last n characters
+func SplitEnds(s string, n int, part part) string {
+	var start, middle, end string
+	if len(s) <= 2*n {
+		start, middle, end = s, "", ""
+	} else {
+		start, middle, end = s[:n], s[n:len(s)-n], s[len(s)-n:]
+	}
+	if part == Start {
+		return start
+	} else if part == Middle {
+		return middle
+	} else {
+		return end
+	}
 }

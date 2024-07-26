@@ -10,3 +10,8 @@ const (
 	BaseFeeDivisor = 1000    // 0.1% base fee
 	MinimumFee     = 100_000 // microalgos
 )
+
+// Number of characters to highlight displaying long strings, e.g. addresses
+const (
+	NumCharsToHighlight = 5
+)

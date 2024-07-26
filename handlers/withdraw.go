@@ -28,7 +28,7 @@ func WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		errorMsg := ""
 		if errAmount != nil {
 			log.Printf("Error parsing withdrawal amount: %v", errAmount)
-			errorMsg += "Please submit a valid algo amount<br>"
+			errorMsg += "Invalid algo amount<br>"
 		}
 		if errAddress != nil {
 			log.Printf("Error parsing withdrawal address: %v", errAddress)
@@ -42,7 +42,14 @@ func WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, errorMsg, http.StatusUnprocessableEntity)
 			return
 		}
-		isValid := utils.VerifyWithdrawal(amount, address, note)
+		withdrawData := &models.WithdrawData{
+			Amount:  amount,
+			Fee:     amount.Fee(),
+			Address: address,
+			OldNote: note,
+			NewNote: nil,
+		}
+		isValid, err := utils.VerifyWithdrawal(withdrawData)
 		if isValid {
 			newNote, err := models.GenerateChangeNote(amount, note)
 			if err != nil {
@@ -50,22 +57,19 @@ func WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
-			data := models.WithdrawData{
-				Amount:  amount,
-				Fee:     amount.Fee(),
-				Address: address,
-				Note:    note,
-				NewNote: newNote,
-			}
-			if err := templates.ConfirmWithdrawal.Execute(w, data); err != nil {
+			withdrawData.NewNote = newNote
+			if err := templates.ConfirmWithdrawal.Execute(w, withdrawData); err != nil {
 				log.Printf("Error executing success template: %v", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			}
 		} else {
-			errorMsg = `<b>Proof verification failed.</b><br>
-						The secret note you provided does not exist
-						or does not contain enough funds.`
-			http.Error(w, errorMsg, http.StatusUnprocessableEntity)
+			if err == utils.NoteAmountTooSmall || err == utils.NoteDoesNotExist {
+				errorMsg = "<b>Proof verification failed.</b><br>" + err.Error()
+				http.Error(w, errorMsg, http.StatusUnprocessableEntity)
+			} else {
+				errorMsg = "<b>Something went wrong.</b><br>Please try again."
+				http.Error(w, errorMsg, http.StatusInternalServerError)
+			}
 		}
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)

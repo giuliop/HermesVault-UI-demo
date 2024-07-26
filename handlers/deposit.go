@@ -26,12 +26,12 @@ func DepositHandler(w http.ResponseWriter, r *http.Request) {
 		address, errAddress := models.Input(r.FormValue("address")).ToAddress()
 		errorMsg := ""
 		if errAmount != nil {
-			log.Printf("Error parsing withdrawal amount: %v", errAmount)
-			errorMsg += "Please submit a valid algo amount<br>"
+			log.Printf("Error parsing deposit amount: %v", errAmount)
+			errorMsg += "Invalid algo amount<br>"
 		}
 		if errAddress != nil {
-			log.Printf("Error parsing withdrawal address: %v", errAddress)
-			errorMsg += "Please submit a valid Algorand address<br>"
+			log.Printf("Error parsing deposit address: %v", errAddress)
+			errorMsg += "Invalid Algorand address<br>"
 		}
 		if errorMsg != "" {
 			http.Error(w, errorMsg, http.StatusUnprocessableEntity)
@@ -40,13 +40,13 @@ func DepositHandler(w http.ResponseWriter, r *http.Request) {
 		newNote, err := models.GenerateNote(amount.Microalgos)
 		if err != nil {
 			log.Printf("Error generating new note: %v", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			http.Error(w, "Something went wrong. Please try again", http.StatusInternalServerError)
 			return
 		}
 		data := models.DepositData{
 			Amount:  amount,
 			Address: address,
-			NewNote: newNote,
+			Note:    newNote,
 		}
 
 		if err := templates.ConfirmDeposit.Execute(w, data); err != nil {
