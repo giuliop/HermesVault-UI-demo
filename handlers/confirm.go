@@ -7,6 +7,8 @@ import (
 	"time"
 	"webapp/db"
 	"webapp/models"
+
+	"webapp/utils"
 )
 
 func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,18 +20,18 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	amount, errAmount := models.Input(r.FormValue("amount")).ToAmount()
 	address, errAddress := models.Input(r.FormValue("address")).ToAddress()
-	note, errNote := models.Input(r.FormValue("note")).ToNote()
+	note, errNote := models.Input(r.FormValue("newNote")).ToNote()
 	errorMsg := ""
 	if errAmount != nil {
-		log.Printf("Error parsing withdrawal amount: %v", errAmount)
+		log.Printf("Error parsing deposit amount: %v", errAmount)
 		errorMsg += "Invalid deposit amount<br>"
 	}
 	if errAddress != nil {
-		log.Printf("Error parsing withdrawal address: %v", errAddress)
+		log.Printf("Error parsing deposit address: %v", errAddress)
 		errorMsg += "Invalid Algorand address<br>"
 	}
 	if errNote != nil {
-		log.Printf("Error parsing withdrawal address: %v", errAddress)
+		log.Printf("Error parsing deposit note: %v", errAddress)
 		errorMsg += "Invalid note<br>"
 	}
 	if errorMsg != "" {
@@ -43,7 +45,7 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 	depositData := &models.DepositData{
 		Amount:  amount,
 		Address: address,
-		Note:    note,
+		NewNote: note,
 	}
 	err := db.SaveDeposit(depositData)
 	if err != nil {
@@ -91,11 +93,11 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		errorMsg += "Invalid withdrawal address<br>"
 	}
 	if errOldNote != nil {
-		log.Printf("Error parsing withdrawal address: %v", errAddress)
-		errorMsg += "Invalid secret note<br>"
+		log.Printf("Error parsing withdrawal old note: %v", errAddress)
+		errorMsg += "Invalid deposit secret note<br>"
 	}
 	if errNewNote != nil {
-		log.Printf("Error parsing withdrawal address: %v", errAddress)
+		log.Printf("Error parsing withdrawal new note: %v", errAddress)
 		errorMsg += "Invalid new secret note<br>"
 	}
 	if errorMsg != "" {
@@ -114,7 +116,7 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		NewNote: newNote,
 	}
 
-	err := db.SaveWithdrawal(withdrawData)
+	err := utils.CommitWithdrawal(withdrawData)
 	if err != nil {
 		log.Printf("Error saving withdrawal: %v", err)
 		http.Error(w, "Something went wrong. Your withdrawal was not processed.",

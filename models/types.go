@@ -34,7 +34,7 @@ type WithdrawData struct {
 type DepositData struct {
 	Amount  *Amount
 	Address Address
-	Note    *Note
+	NewNote *Note
 }
 
 // Fee calculates the fee for a withdrawal amount

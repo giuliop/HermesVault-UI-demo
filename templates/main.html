@@ -112,7 +112,11 @@
     class="box bad"
     style="display:none;"
     {{if .}}{{.}}{{end}}
-    hx-on::after-swap="event.target.style.display=''"
+    hx-on::after-swap="baseElement = document.querySelector('form').parentElement;
+                       width = window.getComputedStyle(baseElement).width;
+                       event.target.style.width=width;
+                       event.target.style.display='';
+    "
 ></div>
 {{end}}
 

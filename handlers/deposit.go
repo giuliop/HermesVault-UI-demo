@@ -46,7 +46,7 @@ func DepositHandler(w http.ResponseWriter, r *http.Request) {
 		data := models.DepositData{
 			Amount:  amount,
 			Address: address,
-			Note:    newNote,
+			NewNote: newNote,
 		}
 
 		if err := templates.ConfirmDeposit.Execute(w, data); err != nil {

@@ -1,3 +1,4 @@
 .air.toml
 tmp
 dev-ssl-certificates
+db/data

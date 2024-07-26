@@ -70,11 +70,11 @@
                         align-self: flex-start;
                         cursor: pointer;"
                  onclick="navigator.clipboard.writeText('{{.data.NewNote.Text}}');
-                          behaviors.Show.fadingTooltip(this,`copied !`);"
-            >
+                          behaviors.Show.fadingTooltip(this,`copied !`);">
             <div>
-                <span class="<small> boxed-text ok color border bg"
-                >{{.data.NewNote.Text}}</span>
+                <span class="<small> boxed-text ok color border bg">
+                    {{.data.NewNote.Text}}
+                </span>
             </div>
         </p>
         <div class="bad bg color border align-all">
@@ -100,19 +100,22 @@
         </div>
         <p>
             <textarea
-                name="note" id="confirmNote"
+                name="newNote" id="confirmNote"
                 class="wide bad border bg border"
                 placeholder="Copy here the new secret note to confirm you saved it"
                 onpaste="setTimeout(() => { validateNote(this) }, 0)"
                 onblur="if (this.value) validateNote(this)"
             ></textarea>
-        <p>
+        </p>
         {{if eq .type "deposit"}}
         <input type="hidden" name="signedTxn" value=""
                data-wallet-signedTxn-input>
         {{end}}
-        <input type="hidden" name="address" value="{{.data.Address.String}}">
+        <input type="hidden" name="address" value="{{.data.Address}}">
         <input type="hidden" name="amount" value="{{.data.Amount.Algostring}}">
+        {{if eq .type "withdraw"}}
+        <input type="hidden" name="oldNote" value="{{.data.OldNote.Text}}">
+        {{end}}
         <button id="confirmButton" type="submit" class="big wide" disabled
             {{if eq .type "deposit"}}
                 data-wallet-confirm-deposit-button
@@ -135,9 +138,6 @@
 {{if eq .type "withdraw"}}
     {{template "errorBox"}}
 {{end}}
-
-
-
 <script>
     function validateNote(elem) {
         if (elem.value.trim() !== '{{.data.NewNote.Text}}') {

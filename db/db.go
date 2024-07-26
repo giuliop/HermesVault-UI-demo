@@ -25,17 +25,19 @@ func getFileLock(filePath string) *flock.Flock {
 	return value.(*flock.Flock)
 }
 
-// fileNameForNote generates a file name for the given note
-func fileNameForNote(newNote *models.Note) string {
-	return newNote.Text
+// filePathForNote returns the directory and file path for a note
+func filePathForNote(newNote *models.Note) (dir string, filePath string) {
+	fileName := newNote.Text
+	dir = filepath.Join(baseDir, fileName[len(fileName)-2:])
+	return dir, filepath.Join(dir, fileName)
 }
 
 // SaveDeposit saves a deposit to the database
 func SaveDeposit(data *models.DepositData) error {
-	if data.Note == nil {
+	if data.NewNote == nil {
 		return fmt.Errorf("note is nil")
 	}
-	return saveNoteToFile(data.Note)
+	return saveNoteToFile(data.NewNote)
 }
 
 // SaveWithdrawal saves a withdrawal to the database
@@ -48,22 +50,21 @@ func SaveWithdrawal(data *models.WithdrawData) error {
 
 // saveNoteToFile saves a note to a file
 func saveNoteToFile(data *models.Note) error {
-	fileName := fileNameForNote(data)
-	dir := filepath.Join(baseDir, fileName[len(fileName)-2:])
-	filePath := filepath.Join(dir, fileName+".json")
+	dir, filePath := filePathForNote(data)
 
-	// Lock the directory before creating it
+	// Create the directory if it doesn't exist
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
+		return fmt.Errorf("error creating directories: %w", err)
+	}
+
+	// Lock the directory after ensuring it exists
 	dirLock := getFileLock(dir)
-	err := dirLock.Lock()
+	err = dirLock.Lock()
 	if err != nil {
 		return fmt.Errorf("error locking directory: %w", err)
 	}
 	defer dirLock.Unlock()
-	// Create the directory if it doesn't exist
-	err = os.MkdirAll(dir, 0755)
-	if err != nil {
-		return fmt.Errorf("error creating directories: %w", err)
-	}
 
 	// Now lock the file before writing
 	fileLock := getFileLock(filePath)
@@ -89,9 +90,7 @@ func saveNoteToFile(data *models.Note) error {
 
 // ExistNote checks if a note file exists in the database.
 func ExistNote(n *models.Note) (bool, error) {
-	fileName := fileNameForNote(n)
-	dir := filepath.Join(baseDir, fileName[len(fileName)-2:])
-	filePath := filepath.Join(dir, fileName+".json")
+	_, filePath := filePathForNote(n)
 
 	// Lock the file before reading
 	lock := getFileLock(filePath)
@@ -115,9 +114,7 @@ func ExistNote(n *models.Note) (bool, error) {
 
 // DeleteNote deletes a note from the database
 func DeleteNote(n *models.Note) error {
-	fileName := fileNameForNote(n)
-	dir := filepath.Join(baseDir, fileName[len(fileName)-2:])
-	filePath := filepath.Join(dir, fileName+".json")
+	_, filePath := filePathForNote(n)
 
 	// Lock the file before deleting
 	lock := getFileLock(filePath)

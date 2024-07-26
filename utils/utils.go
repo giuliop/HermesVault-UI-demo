@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"time"
 	"webapp/db"
 	"webapp/models"
@@ -36,10 +37,27 @@ func VerifyWithdrawal(w *models.WithdrawData) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if w.Amount.Microalgos > w.OldNote.Amount {
+	if w.Amount.Microalgos+w.Fee.Microalgos > w.OldNote.Amount {
 		return false, NoteAmountTooSmall
 	}
-	db.DeleteNote(w.OldNote)
-	db.SaveWithdrawal(w)
 	return true, nil
+}
+
+// CommitWithdrawal saves a withdrawal to the database, deleting the old note
+func CommitWithdrawal(w *models.WithdrawData) error {
+	err := db.SaveWithdrawal(w)
+	if err != nil {
+		return err
+	}
+
+	// try 10 times to delete the old note with a delay between attempts
+	for i := 0; i < 10; i++ {
+		err = db.DeleteNote(w.OldNote)
+		if err == nil {
+			return nil
+		}
+		log.Printf("Attempt %d to delete old note failed: %v", i+1, err)
+		time.Sleep(100 * time.Millisecond) // add a delay between retries
+	}
+	return err
 }
