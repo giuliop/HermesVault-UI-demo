@@ -27,7 +27,7 @@
     </div>
     <h1 class="title">Hermes Vault</h1>
     <div id="ui"
-         hx-get="/deposit"
+         hx-get="deposit"
          hx-trigger="load delay:100ms"
          hx-target="#ui"
          hx-swap="innerHTML"
@@ -38,7 +38,7 @@
 {{end}}
 
 {{define "tabButton"}}
-<button hx-get="/{{.url}}"
+<button hx-get="{{.url}}"
         {{if eq .selected .url}}class="selected" disabled{{end}}
         role="tab"
         aria-selected="{{if eq .selected .url}}true{{else}}false{{end}}"
@@ -59,7 +59,7 @@
 <div idString="tab-content" class="tab-content" role="tabpanel" data-wallet>
 
 	<h2>Deposit</h2>
-	<form hx-post="/deposit"
+	<form hx-post="deposit"
           hx-target-error="#errorBox"
           hx-indicator="#spinner"
           hx-swap="show:#errorBox:top"
@@ -103,7 +103,7 @@
 
 {{define "spinner"}}
 <div id="spinner" class="progress-indicator">
-    <img class="centered" src="/static/mathematician.svg">
+    <img class="centered" src="static/mathematician.svg">
 </div>
 {{end}}
 
@@ -124,7 +124,7 @@
 {{template "tabList" "withdraw"}}
 <div id="tab-content" class="tab-content" role="tabpanel">
     <h2>Withdraw</h2>
-    <form hx-post="/withdraw"
+    <form hx-post="withdraw"
           hx-target-error="#errorBox"
           hx-on::config-request="behaviors.Trim.restoreAll(event)"
           hx-indicator="#spinner"

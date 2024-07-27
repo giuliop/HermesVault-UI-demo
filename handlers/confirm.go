@@ -59,7 +59,7 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 				 <p>
 				   You can use your new secret note to withdraw your funds in the future.
 				</p>
-				<button hx-get="/withdraw"
+				<button hx-get="withdraw"
 						onclick="this.parentElement.close()">
 				  Close
 				</button>
@@ -129,7 +129,7 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 				 <p>
 				   You can use your new secret note to withdraw any remaining balance in the future.
 				</p>
-				<button hx-get="/withdraw"
+				<button hx-get="withdraw"
 						onclick="this.parentElement.close()">
 				  Close
 				</button>

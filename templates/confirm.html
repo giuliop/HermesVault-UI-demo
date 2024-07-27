@@ -16,8 +16,8 @@
         </strong>
     </figcaption>
     <form
-        {{if eq .type "deposit"}} hx-post="/confirm-deposit" {{end}}
-        {{if eq .type "withdraw"}} hx-post="/confirm-withdraw" {{end}}
+        {{if eq .type "deposit"}} hx-post="confirm-deposit" {{end}}
+        {{if eq .type "withdraw"}} hx-post="confirm-withdraw" {{end}}
         hx-target-error="#errorBox"
         hx-swap="show:#errorBox:top"
         hx-indicator="#spinner"
@@ -63,7 +63,7 @@
                 {{if eq .type "deposit"}} deposited funds in the future{{end}}
                 {{if eq .type "withdraw"}} any remaining balance in the future{{end}}
             </span>
-            <img src="/static/copy.svg"
+            <img src="static/copy.svg"
                  alt="Copy to Clipboard"
                  title="Copy to Clipboard"
                  style="width: 30px; height: 30px;
