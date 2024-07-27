@@ -3,6 +3,8 @@ package config
 const (
 	// TODO: Set a cache control header where useful
 	CacheControl = "public, max-age=600" // 600 sec = 10 min
+    ProductionPort = "5555"
+    DevelopmentPort = "3000"
 )
 
 // Protocol fees

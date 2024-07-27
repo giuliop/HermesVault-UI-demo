@@ -13,6 +13,7 @@ import (
 	"time"
 	"webapp/handlers"
 	"webapp/templates"
+	"webapp/config"
 )
 
 func main() {
@@ -50,13 +51,14 @@ func main() {
 
 		// Create a custom HTTPS server
 		server = &http.Server{
-			Addr: ":3000",
+			Addr: ":" + config.DevelopmentPort,
 			TLSConfig: &tls.Config{
 				Certificates: []tls.Certificate{cert},
 			},
 		}
 
-		fmt.Println("Server is running in development mode on https://localhost:3000 and https://maya.local:3000")
+		fmt.Printf("Server running in development mode on port %s\n",
+            config.DevelopmentPort)
 		go func() {
 			err = server.ListenAndServeTLS("", "")
 			if err != nil && err != http.ErrServerClosed {
@@ -66,10 +68,11 @@ func main() {
 	} else {
 		// Production mode
 		server = &http.Server{
-			Addr: ":5555",
+			Addr: ":" + config.ProductionPort,
 		}
 
-		fmt.Println("Server is running in production mode on http://localhost:5555")
+		fmt.Printf("Server running in production mode on port %s\n",
+            config.ProductionPort)
 		go func() {
 			err := server.ListenAndServe()
 			if err != nil && err != http.ErrServerClosed {
