@@ -3,12 +3,12 @@
      xmlns:xlink="http://www.w3.org/1999/xlink">
 
   <style>
-    @media (prefers-color-scheme: dark) {
-      .ink {
-        stroke: white;
-        fill: white;
-      }
-    }
+    <!--@media (prefers-color-scheme: dark) {-->
+      <!--.ink {-->
+        <!--stroke: white;-->
+        <!--fill: white;-->
+      <!--}-->
+    <!--}-->
   </style>
   <!-- Background -->
   <!-- <rect width="100%" height="100%" fill="#f0f0f0"/> -->
