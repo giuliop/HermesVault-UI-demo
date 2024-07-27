@@ -31,11 +31,12 @@ func VerifyWithdrawal(w *models.WithdrawData) (bool, error) {
 	// TODO: implement this function
 	time.Sleep(2 * time.Second)
 	existNote, err := db.ExistNote(w.OldNote)
+	if err != nil {
+		log.Printf("Error verifying withdrawal: %v", err)
+		return false, err
+	}
 	if !existNote {
 		return false, NoteDoesNotExist
-	}
-	if err != nil {
-		return false, err
 	}
 	if w.Amount.Microalgos+w.Fee.Microalgos > w.OldNote.Amount {
 		return false, NoteAmountTooSmall
@@ -47,9 +48,9 @@ func VerifyWithdrawal(w *models.WithdrawData) (bool, error) {
 func CommitWithdrawal(w *models.WithdrawData) error {
 	err := db.SaveWithdrawal(w)
 	if err != nil {
+		log.Printf("Error saving withdrawal: %v", err)
 		return err
 	}
-
 	// try 10 times to delete the old note with a delay between attempts
 	for i := 0; i < 10; i++ {
 		err = db.DeleteNote(w.OldNote)

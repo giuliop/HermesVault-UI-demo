@@ -58,14 +58,6 @@ func saveNoteToFile(data *models.Note) error {
 		return fmt.Errorf("error creating directories: %w", err)
 	}
 
-	// Lock the directory after ensuring it exists
-	dirLock := getFileLock(dir)
-	err = dirLock.Lock()
-	if err != nil {
-		return fmt.Errorf("error locking directory: %w", err)
-	}
-	defer dirLock.Unlock()
-
 	// Now lock the file before writing
 	fileLock := getFileLock(filePath)
 	err = fileLock.Lock()
@@ -91,24 +83,12 @@ func saveNoteToFile(data *models.Note) error {
 // ExistNote checks if a note file exists in the database.
 func ExistNote(n *models.Note) (bool, error) {
 	_, filePath := filePathForNote(n)
-
-	// Lock the file before reading
-	lock := getFileLock(filePath)
-	err := lock.RLock()
-	if err != nil {
-		return false, fmt.Errorf("error locking file: %w", err)
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, fmt.Errorf("error checking file: %w", err)
 	}
-	defer lock.Unlock()
-
-	// Check if the file exists
-	_, err = os.ReadFile(filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return false, nil // File does not exist
-		}
-		return false, fmt.Errorf("error reading file: %w", err)
-	}
-
 	return true, nil
 }
 
