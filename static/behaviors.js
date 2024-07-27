@@ -67,7 +67,8 @@ const Show = {
     scrollTo: function(selector, afterEvent = true, scrollType = 'smooth') {
         let elem = document.querySelector(selector);
         let f = () => {
-            window.scrollTo({ top: elem.offsetTop - window.innerHeight / 2,
+            let elementBottom = elem.offsetTop + elem.offsetHeight;
+            window.scrollTo({ top: elementBottom - window.innerHeight / 2,
                               behavior: scrollType})
         }
         if (afterEvent) {
