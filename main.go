@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +16,10 @@ import (
 )
 
 func main() {
+	// Parse the -dev flag
+	dev := flag.Bool("dev", false, "run in development mode")
+	flag.Parse()
+
 	templates.InitTemplates()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -32,19 +37,45 @@ func main() {
 	// Serve static files from the "static" directory
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	// Load the dev ssl certificates
-	cert, err := tls.LoadX509KeyPair("dev-ssl-certificates/localhost+4.pem",
-		"dev-ssl-certificates/localhost+4-key.pem")
-	if err != nil {
-		log.Fatalf("Error loading certificates: %v", err)
-	}
+	var server *http.Server
 
-	// Create a custom HTTPS server
-	server := &http.Server{
-		Addr: ":3000",
-		TLSConfig: &tls.Config{
-			Certificates: []tls.Certificate{cert},
-		},
+	// Determine the mode and configure the server accordingly
+	if *dev {
+		// Development mode
+		cert, err := tls.LoadX509KeyPair("dev-ssl-certificates/localhost+4.pem",
+			"dev-ssl-certificates/localhost+4-key.pem")
+		if err != nil {
+			log.Fatalf("Error loading certificates: %v", err)
+		}
+
+		// Create a custom HTTPS server
+		server = &http.Server{
+			Addr: ":3000",
+			TLSConfig: &tls.Config{
+				Certificates: []tls.Certificate{cert},
+			},
+		}
+
+		fmt.Println("Server is running in development mode on https://localhost:3000 and https://maya.local:3000")
+		go func() {
+			err = server.ListenAndServeTLS("", "")
+			if err != nil && err != http.ErrServerClosed {
+				log.Fatalf("Error starting HTTPS server: %v", err)
+			}
+		}()
+	} else {
+		// Production mode
+		server = &http.Server{
+			Addr: ":5555",
+		}
+
+		fmt.Println("Server is running in production mode on http://localhost:5555")
+		go func() {
+			err := server.ListenAndServe()
+			if err != nil && err != http.ErrServerClosed {
+				log.Fatalf("Error starting HTTP server: %v", err)
+			}
+		}()
 	}
 
 	// Handle graceful shutdown
@@ -60,9 +91,6 @@ func main() {
 		}
 	}()
 
-	fmt.Println("Server is running on https://localhost:3000 and https://maya.local:3000")
-	err = server.ListenAndServeTLS("", "")
-	if err != nil {
-		log.Fatalf("Error starting HTTPS server: %v", err)
-	}
+	// Block the main goroutine until the server is shut down
+	select {}
 }
