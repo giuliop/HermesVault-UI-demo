@@ -50,6 +50,7 @@ button.connect-wallet {
     color: white;
     background: #d9534f;
     border: solid #d9534f;
+    outline: none;
     border-radius: 8px;
     padding: 10px 20px;
     letter-spacing: .1em;
