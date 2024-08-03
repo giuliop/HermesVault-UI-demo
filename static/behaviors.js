@@ -80,9 +80,24 @@ const Show = {
     }
 }
 
+const Style = {
+    toggleDarkMode: function() {
+        if(document.documentElement.classList.contains("-no-dark-theme")){
+            // Enable dark mode
+            document.documentElement.classList.remove("-no-dark-theme");
+            document.documentElement.classList.add("dark-theme");
+            return;
+        }
+        // Enable light mode
+        document.documentElement.classList.add("-no-dark-theme");
+        document.documentElement.classList.remove("dark-theme");
+    }
+}
+
 const behaviors = {
     Trim: Trim,
     Show: Show,
+    Style: Style,
 };
 
 window.behaviors = behaviors;
