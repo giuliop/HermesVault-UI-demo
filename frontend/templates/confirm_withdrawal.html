@@ -1,0 +1,122 @@
+{{define "confirmWithdrawal"}}
+<figure class="container">
+    <figcaption class="big">
+        <strong>Withdrawal Confirmation</strong>
+    </figcaption>
+    <form
+        hx-post="confirm-withdraw"
+        hx-target-error="#errorBox"
+        hx-swap="show:#errorBox:top"
+        hx-indicator="#spinner"
+    >
+        <p>
+            <span class="row">
+                <span class="bold">
+                    Amount to withdraw
+                </span>
+                <span>
+                    {{.Amount.Algostring}} algo
+                </span>
+            </span>
+            <span class="row">
+                <span class="bold">
+                    Protocol Fee
+                        <span class="has-info">
+                            <span class="tooltip">
+                                0.1% of withdrawal<br>(0.1 algo minimum fee)
+                            </span>
+                        </span>
+                </span>
+                <span>
+                    {{.Fee.Algostring}} algo
+                </span>
+            </span>
+        </p>
+        <p>
+            <span class="bold">
+                Recipient address
+            </span>
+            <span class="boxed-text border">
+            <span class="bold">{{.Address.Start}}</span><span class="<small>">{{.Address.Middle}}</span><span class="bold">{{.Address.End}}</span>
+            </span>
+        </p>
+        <p class="align-all">
+            <span class="bold">
+                New secret note to withdraw any remaining balance in the future
+            </span>
+            <img src="static/copy.svg"
+                 alt="Copy to Clipboard"
+                 title="Copy to Clipboard"
+                 style="width: 30px; height: 30px;
+                        align-self: flex-start;
+                        cursor: pointer;"
+                 onclick="navigator.clipboard.writeText('{{.ChangeNote.Text}}');
+                          behaviors.Show.fadingTooltip(this,`copied !`);"
+            >
+            <div>
+                <span class="<small> boxed-text ok color border bg">
+                    {{.ChangeNote.Text}}
+                </span>
+            </div>
+        </p>
+        <div class="bad bg color border align-all">
+            <div id="confirmCheckbox" class="checkbox"
+                 onclick="let box = this.parentElement;
+                          box.classList.remove('bad');
+                          box.classList.add('ok');
+                          this.dataset.checked = 'true';
+                          this.classList.add('checked');
+                          this.style.cursor = 'default';
+                          this.onclick = null;
+                          if (document.querySelector('#confirmNote').readOnly) {
+                              document.querySelector('#confirmButton').disabled = false;
+                          }"
+            ></div>
+            <span>
+                <strong>I have saved the new secret note.</strong><br>
+                I understand that if I lose it, I will lose access to
+                any remaining balance and nobody will be able to help me
+            </span>
+        </div>
+        <p>
+            <textarea
+                name="changeNote" id="confirmNote"
+                class="wide bad border bg border"
+                placeholder="Copy here the new secret note to confirm you saved it"
+                onpaste="setTimeout(() => { validateNote(this) }, 0)"
+                onblur="if (this.value) validateNote(this)"
+            ></textarea>
+        </p>
+        <input type="hidden" name="address" value="{{.Address}}">
+        <input type="hidden" name="amount" value="{{.Amount.Algostring}}">
+        <input type="hidden" name="fromNote" value="{{.FromNote.Text}}">
+        <button id="confirmButton" type="submit" class="big wide" disabled
+                onclick="document.querySelector('#errorBox').style.display='none';
+                         behaviors.Show.scrollTo('#spinner')"
+        >
+            Confirm
+        </button>
+        </p>
+    </form>
+</figure>
+{{template "spinner"}}
+{{template "errorBox"}}
+<script>
+    function validateNote(elem) {
+        if (elem.value.trim() !== '{{.ChangeNote.Text}}') {
+            elem.value = '';
+            elem.placeholder = 'The note you pasted does not match the new secret note';
+        } else {
+            elem.classList.remove('bad');
+            elem.classList.add('ok');
+            elem.classList.add('<small>');
+            elem.setAttribute('readonly', true);
+            if (document.querySelector('#confirmCheckbox').dataset.checked) {
+                document.querySelector('#confirmButton').disabled = false;
+            }
+            elem.onpaste = null;
+            elem.onblur = null;
+        }
+    }
+</script>
+{{end}}

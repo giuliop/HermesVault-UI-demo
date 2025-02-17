@@ -1,0 +1,167 @@
+{{define "main"}}
+<!DOCTYPE html>
+<html class="-no-dark-theme">
+<head>
+    <title>Hermes Vault</title>
+    <link rel="icon" href="static/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="static/apple-touch-icon.png">
+    <link rel="stylesheet" href="static/main.css">
+    <link rel="stylesheet" href="/static/missing.bundle.css">
+    <script src="/static/htmx.bundle.js"></script>
+    <script src="/static/wallet.bundle.js" type="module" defer></script>
+    <script src="/static/behaviors.bundle.js" type="module" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body hx-boost="true"
+      hx-ext="response-targets">
+      <div class="demobar">
+            This is only a demo ! Read the <a href="https://github.com/giuliop/HermesVault">whitepaper</a>
+    </div>
+    <h1 class="title">Hermes Vault</h1>
+    <div id="ui"
+         hx-get="deposit"
+         hx-trigger="load delay:100ms"
+         hx-target="#ui"
+         hx-swap="innerHTML"
+    ></div>
+</body>
+
+</html>
+{{end}}
+
+{{define "tabButton"}}
+<button hx-get="{{.url}}"
+        {{if eq .selected .url}}class="selected" disabled{{end}}
+        role="tab"
+        aria-selected="{{if eq .selected .url}}true{{else}}false{{end}}"
+        aria-controls="tab-content">
+    {{(.title)}}
+</button>
+{{end}}
+
+{{define "tabList"}}
+<div class="tab-list" role="tablist" hx-swap="settle:0s">
+    {{template "tabButton" (dict "url" "deposit" "title" "Deposit" "selected" .)}}
+    {{template "tabButton" (dict "url" "withdraw" "title" "Withdraw" "selected" .)}}
+</div>
+{{end}}
+
+{{define "depositForm"}}
+{{template "tabList" "deposit"}}
+<div idString="tab-content" class="tab-content" role="tabpanel" data-wallet>
+
+	<h2>Deposit</h2>
+	<form hx-post="deposit"
+          hx-target-error="#errorBox"
+          hx-indicator="#spinner"
+          hx-swap="show:#errorBox:top"
+          hx-on::config-request="behaviors.Trim.restoreAll(event)"
+          data-wallet-form>
+        <p class="row">
+            <label for="depositAmount">
+                Amount
+            </label>
+            <input type="number" id="depositAmount" name="amount"
+                   placeholder="algo to deposit"
+                   step="0.000001" min="1"
+                   required>
+        </p>
+        <p class="row">
+            <label for="depositAddress">
+                From
+            </label>
+            <input type="text" id="depositAddress" name="address"
+                   data-wallet-address
+                   onblur="behaviors.Trim.trim(this)"
+                   onfocus="behaviors.Trim.restore(this)" autocomplete="off" readonly >
+        </p>
+        <button type="submit" data-wallet-deposit-button
+                class = "big wide"
+                onclick="document.querySelector('#errorBox').style.display='none';
+                         behaviors.Show.scrollTo('#spinner');"
+        >
+            Deposit
+        </button>
+    </form>
+    <div>
+        <button class="connect-wallet big wide" data-wallet-connect-button>
+            Connect Wallet
+        </button>
+    </div>
+</div>
+{{template "spinner"}}
+{{template "errorBox"}}
+{{end}}
+
+{{define "spinner"}}
+<div id="spinner" class="progress-indicator">
+    <img class="centered" src="static/mathematician.svg">
+</div>
+{{end}}
+
+{{define "errorBox"}}
+<div id="errorBox"
+    class="box bad"
+    style="display:none;"
+    {{if .}}{{.}}{{end}}
+    hx-on::after-swap="baseElement = document.querySelector('form').parentElement;
+                       width = window.getComputedStyle(baseElement).width;
+                       event.target.style.width=width;
+                       event.target.style.display='';
+    "
+></div>
+{{end}}
+
+{{define "withdrawForm"}}
+{{template "tabList" "withdraw"}}
+<div id="tab-content" class="tab-content" role="tabpanel">
+    <h2>Withdraw</h2>
+    <form hx-post="withdraw"
+          hx-target-error="#errorBox"
+          hx-on::config-request="behaviors.Trim.restoreAll(event)"
+          hx-indicator="#spinner"
+          hx-swap="show:#errorBox:top"
+		>
+        <p class="row">
+            <label for="withdrawAmount">
+                Amount
+            </label>
+            <input type="number" id="withdrawAmount" name="amount"
+                   placeholder="algo to withdraw"
+                   step="0.000001" min="1"
+                   required>
+        </p>
+        <p class="row">
+            <label for="withdrawAddress">
+                Address
+            </label>
+            <input type="text" id="withdrawAddress" name="address"
+                   autocomplete="off"
+                   placeholder="recipient"
+                   onfocus="behaviors.Trim.restore(this)"
+                   onblur="behaviors.Trim.trim(this)"
+                   required>
+        </p>
+        <p class="row">
+            <label for="withdrawNote">
+                Note
+            </label>
+            <input type="text" id="withdrawNote" name="note"
+                   placeholder="secret note"
+                   onfocus="behaviors.Trim.restore(this)"
+                   onblur="behaviors.Trim.trim(this)"
+                   required>
+        </p>
+        <button type="submit"
+                class="big wide"
+                onclick="document.querySelector('#errorBox').style.display='none'
+                         behaviors.Show.scrollTo('#spinner')"
+        >
+            Withdraw
+        </button>
+    </form>
+</div>
+{{template "spinner"}}
+{{template "errorBox"}}
+{{end}}

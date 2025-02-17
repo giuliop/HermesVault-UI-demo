@@ -1,0 +1,21 @@
+Backend
+* Review logging
+* Review error handling
+* Evaluate in memory store for leaves
+
+Subscriber service
+* Review error handling
+
+DB
+* review incoming data validation
+* review encryption 
+* review indexes
+
+UI
+* Prevent submit buttons to fire again before receiving response
+* Review error messages to user
+* Minify all css/js files
+
+Testing
+* Add automated tests
+

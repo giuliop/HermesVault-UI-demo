@@ -1,0 +1,232 @@
+@media (min-width: 500px) {
+    input {
+            min-width: 250px;
+    }
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+h1.title {
+    font-size: 36px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.tab-list {
+    justify-content: space-between;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+button {
+    font-size: inherit;
+    margin-bottom: 20px;
+    padding: 10px 10px;
+    cursor: pointer;
+}
+
+button.connect-wallet {
+    background-color: #6c757d;
+    color: white;
+}
+
+.modal {
+	border:solid 1px #999;
+	border-radius:8px;
+	box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
+	background-color:white;
+	padding:20px;
+}
+
+.modal button {
+    color: white;
+    background: #d9534f;
+    border: solid #d9534f;
+    outline: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    cursor:pointer;
+}
+
+
+input[readonly] {
+    background-color: #f0f0f0;
+    color: #555;
+    border: 1px dashed #aaa;
+    cursor: not-allowed;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: gray !important;
+    text-align: left !important;
+    font-style: italic;
+}
+
+.progress-indicator {
+    display: none;
+}
+.htmx-request .progress-indicator {
+    display: block;
+}
+.htmx-request.progress-indicator {
+    display: block;
+}
+
+img.centered {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.boxed-text {
+    display: block;
+    padding: calc(var(--rhythm) / 4);
+    border-radius: calc(var(--rhythm) / 2);
+}
+
+.align-all {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0px 5px;
+    gap: 10px;
+}
+
+.wide {
+    width: 100%;
+}
+
+.bad::placeholder {
+    color: brown !important;
+}
+
+.tooltip {
+    font-size: small;
+    background-color: dimgray;
+    color: whitesmoke;
+    padding: 2px 5px;
+    border-radius: 2px;
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+/* .has-info adds a ? icon next to an element to show a tooltip on hover */
+.has-info {
+    display: inline-block;
+    position: relative;
+}
+
+.has-info::before {
+    content: '?';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    line-height: 13px;
+    font-size: 10px;
+    color: #555;
+    background-color: #f9f9f9;
+    border-radius: 50%;
+    border: 1px solid #555;
+    text-align: center;
+    vertical-align: super;
+    margin-left: 2px;
+    cursor: pointer;
+}
+
+.has-info:hover .tooltip {
+    display: block; /* Show tooltip on hover */
+}
+
+/* .checkbox is a custom checkbox element */
+.checkbox {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    background-color: white;
+    cursor: pointer;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+}
+
+.checkbox::after {
+    content: '✓';
+    /* ideally we would add `display: none;` to make the checkmark invisible
+     * until the checkbox is checked, but mobile safari collapses the box width
+     * if empty, so we just make the checkmark the same color as the background
+     */
+}
+
+.checkbox.checked::after {
+    display: block;
+    color: green;
+}
+
+.demobar {
+    position: sticky;
+    z-index: 5;
+	top: 0;
+	left: 0;
+	right: 0;
+    min-height: 25px;
+    background: darkred;
+    color: #f0f0f0;
+    font-weight: bold;
+    font-size: 16px;
+    width: 100%;
+    text-align: center;
+}
+
+.demobar a {
+    color: white;
+}
+
+:root.dark-theme {
+    --fg: var(--gray-0);
+    --muted-fg: var(--gray-2);
+    --faded-fg: var(--gray-7);
+
+    --plain-bg: var(--gray-11);
+    --info-bg: var(--blue-12);
+    --ok-bg: var(--green-12);
+    --bad-bg: var(--red-12);
+    --warn-bg: var(--yellow-12);
+
+    --plain-faded-fg: var(--blue-6);
+    --info-faded-fg: var(--blue-6);
+    --ok-faded-fg: var(--green-6);
+    --bad-faded-fg: var(--red-6);
+    --warn-faded-fg: var(--yellow-6);
+
+    --bg: var(--gray-12);
+    --box-bg: var(--gray-10);
+    --interactive-bg: var(--gray-8);
+
+    --plain-fg: (--blue-2);
+    --info-fg: var(--blue-2);
+    --ok-fg: var(--green-2);
+    --bad-fg: var(--red-2);
+    --warn-fg: var(--yellow-2);
+
+    --accent: var(--blue-2);
+    --muted-accent: var(--blue-5);
+}

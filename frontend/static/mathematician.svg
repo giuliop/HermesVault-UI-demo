@@ -1,0 +1,92 @@
+<svg width="160" height="120" viewBox="0 20 160 120"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <style>
+    <!--@media (prefers-color-scheme: dark) {-->
+      <!--.ink {-->
+        <!--stroke: white;-->
+        <!--fill: white;-->
+      <!--}-->
+    <!--}-->
+  </style>
+  <!-- Background -->
+  <!-- <rect width="100%" height="100%" fill="#f0f0f0"/> -->
+
+  <!-- Define the smaller person -->
+  <!-- Head -->
+  <circle class="ink" cx="30" cy="60" r="5" fill="black"/>
+
+  <!-- Body -->
+  <rect class="ink" x="28" y="65" width="4" height="20" fill="black"/>
+
+  <!-- Left arm -->
+  <line class="ink" x1="28" y1="70" x2="15" y2="90" stroke="black" stroke-width="2"/>
+
+  <!-- Right arm -->
+  <line id="right-arm" class="ink" x1="32" y1="70" x2="50" y2="55" stroke="black" stroke-width="2"/>
+
+  <!-- Legs -->
+  <line class="ink" x1="28" y1="85" x2="20" y2="110" stroke="black" stroke-width="2"/>
+  <line class="ink" x1="32" y1="85" x2="40" y2="110" stroke="black" stroke-width="2"/>
+
+  <!-- Formulas being written -->
+  <text id="formula1" class="ink" x="70" y="40" font-family="monospace" font-size="12" fill="black" opacity="0">H(x) = y</text>
+  <text id="formula2" class="ink" x="65" y="80" font-family="monospace" font-size="12" fill="black" opacity="0">g^a mod p</text>
+  <text id="formula3" class="ink" x="80" y="60" font-family="monospace" font-size="12" fill="black" opacity="0">a + b = c</text>
+  <text id="formula4" class="ink" x="50" y="100" font-family="monospace" font-size="12" fill="black" opacity="0">E(x, y)</text>
+
+  <!-- Animation for the right arm -->
+  <animateTransform
+    xlink:href="#right-arm"
+    attributeName="transform"
+    type="rotate"
+    from="0 32 70"
+    to="30 32 70"
+    dur="0.5s"
+    repeatCount="indefinite"
+    keyTimes="0;0.5;1"
+    values="0 32 70; 30 32 70; 0 32 70"
+  />
+
+  <!-- Animation for the formulas -->
+  <animate
+    xlink:href="#formula1"
+    attributeName="opacity"
+    values="0;1;0"
+    dur="0.5s"
+    repeatCount="indefinite"
+    keyTimes="0;0.5;1"
+    begin="0s"
+  />
+  <animate
+    xlink:href="#formula2"
+    attributeName="opacity"
+    values="0;1;0"
+    dur="0.5s"
+    repeatCount="indefinite"
+    keyTimes="0;0.5;1"
+    begin="0.1s"
+  />
+  <animate
+    xlink:href="#formula3"
+    attributeName="opacity"
+    values="0;1;0"
+    dur="0.5s"
+    repeatCount="indefinite"
+    keyTimes="0;0.5;1"
+    begin="0.2s"
+  />
+  <animate
+    xlink:href="#formula4"
+    attributeName="opacity"
+    values="0;1;0"
+    dur="0.5s"
+    repeatCount="indefinite"
+    keyTimes="0;0.5;1"
+    begin="0.3s"
+  />
+
+  <!-- Additional text at the bottom -->
+  <!-- <text class="ink" x="90" y="170" font-family="monospace" font-size="12" fill="black" text-anchor="middle">... creating a ZKP ...</text> -->
+</svg>

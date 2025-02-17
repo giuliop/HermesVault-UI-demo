@@ -1,0 +1,20 @@
+avm/devnet
+dev-ssl-certificates/
+node_modules/
+.tmp/
+.vscode/
+*.log
+*.zip
+
+project
+
+# db files
+*.db*
+
+
+# bundle files in frontend/static
+frontend/static/*.bundle.*
+
+# env
+*.env
+.env.*
