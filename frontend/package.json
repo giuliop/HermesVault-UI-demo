@@ -2,8 +2,8 @@
   "name": "hermesvault",
   "version": "0.1.0",
   "scripts": {
-    "build:wallet": "esbuild js/wallet.js --bundle --sourcemap --outfile=static/wallet.bundle.js --define:global=window",
-    "build:behaviors": "esbuild js/behaviors.js --bundle --sourcemap --outfile=static/behaviors.bundle.js",
+    "build:wallet": "esbuild js/wallet.js --bundle --minify --outfile=static/wallet.bundle.js --define:global=window",
+    "build:behaviors": "esbuild js/behaviors.js --bundle --minify --outfile=static/behaviors.bundle.js",
     "build:htmx": "esbuild js/htmx-entry.js --bundle --minify --outfile=static/htmx.bundle.js",
     "copy:missingcss": "cp node_modules/missing.css/dist/missing.min.css static/missing.bundle.css",
     "build": "npm run build:wallet && npm run build:behaviors && npm run build:htmx && npm run copy:missingcss"
