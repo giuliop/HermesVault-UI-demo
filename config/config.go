@@ -21,7 +21,7 @@ const (
 	NumCharsToHighlight = 5
 
 	// Number of rounds to wait for a transaction to be confirmed
-	WaitRounds = 5
+	WaitRounds = 20
 )
 
 // file paths
