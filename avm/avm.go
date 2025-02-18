@@ -23,6 +23,10 @@ type algodConfig struct {
 var client *algod.Client
 
 func init() {
+	if config.AlgodPath == "" {
+		client = devnetAlgodClient()
+		return
+	}
 	algodConfig, err := readAlgodConfigFromDir(config.AlgodPath)
 	if err != nil {
 		log.Fatalf("failed to read algod config: %v", err)
@@ -76,7 +80,6 @@ func abiEncode(arg any, abiTypeName string) ([]byte, error) {
 // readAlgodConfigFromDir reads the algod URL and token from the given directory
 func readAlgodConfigFromDir(dir string) (*algodConfig, error) {
 	urlPath := filepath.Join(dir, "algod.net")
-    fmt.Println(urlPath)
 	url, err := os.ReadFile(urlPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read algod url: %v", err)

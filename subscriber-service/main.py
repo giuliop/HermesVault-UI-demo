@@ -103,7 +103,11 @@ def handle_transaction(txn: sub.SubscribedTransaction, filter_name: str) -> None
 def main():
     init()
 
-    algod_address, algod_token = config.read_algod_config_from_dir(ALGOD_DIR)
+    if ALGOD_DIR == "":
+        algod_address, algod_token = config.devnet_algod_config()
+    else:
+        algod_address, algod_token = config.read_algod_config_from_dir(ALGOD_DIR)
+
     algod = algosdk.v2client.algod.AlgodClient(algod_token, algod_address)
     depositFilter = NamedTransactionFilter(
         name=parse.depositFilterName,

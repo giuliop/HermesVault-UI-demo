@@ -23,6 +23,12 @@ def read_algod_config_from_dir(directory: str) -> tuple[str, str]:
 
     return "http://" + url, token
 
+def devnet_algod_config() -> tuple[str, str]:
+    """
+    Returns the default algokit localnet algod URL and token.
+    """
+    return "http://localhost:4001", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
 
 def load_env(filename: str) -> Dict[str, str]:
     """
