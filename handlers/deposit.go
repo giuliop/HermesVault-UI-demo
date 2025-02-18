@@ -8,6 +8,8 @@ import (
 	"webapp/frontend/templates"
 	"webapp/memstore"
 	"webapp/models"
+
+	"github.com/algorand/go-algorand-sdk/v2/crypto"
 )
 
 func DepositHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +57,7 @@ func DepositHandler(w http.ResponseWriter, r *http.Request) {
 				http.StatusInternalServerError)
 			return
 		}
+		note.TxnID = crypto.GetTxID(txns[0])
 
 		depositData := models.DepositData{
 			Amount:         amount,

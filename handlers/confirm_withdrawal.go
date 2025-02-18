@@ -147,6 +147,6 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 
 	saveNoteToDbError = db.SaveNote(withdrawData.ChangeNote)
 	if saveNoteToDbError != nil {
-		log.Printf("Error saving withdrawal to db: %v", err)
+		log.Printf("Error saving withdrawal to db: %v", saveNoteToDbError)
 	}
 }

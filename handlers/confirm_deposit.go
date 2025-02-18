@@ -156,6 +156,6 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 
 	saveNoteToDbError = db.SaveNote(depositData.Note)
 	if saveNoteToDbError != nil {
-		log.Printf("Error saving deposit to db: %v", err)
+		log.Printf("Error saving deposit to db: %v", saveNoteToDbError)
 	}
 }
