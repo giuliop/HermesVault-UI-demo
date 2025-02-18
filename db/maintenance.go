@@ -19,7 +19,7 @@ func StartCleanupRoutine(ctx context.Context, interval time.Duration) context.Ca
 			select {
 			case <-ticker.C:
 				log.Println("Running cleanup of unconfirmed notes...")
-				cleanupUnconfirmedNotes()
+				CleanupUnconfirmedNotes()
 			case <-ctx.Done():
 				log.Println("Cleanup routine stopped")
 				return
@@ -29,14 +29,14 @@ func StartCleanupRoutine(ctx context.Context, interval time.Duration) context.Ca
 	return cancel
 }
 
-// cleanupUnconfirmedNotes cleans up unconfirmed_notes rows
+// CleanupUnconfirmedNotes cleans up unconfirmed_notes rows
 // For each note:
 //   - It retrieves the corresponding transaction from txnsDb using txn_id
 //   - If found, it checks that commitment also matches:
 //   - If so, it moves it tothe notes table
 //   - Otherwise, it logs an error and leaves the note unconfirmed
 //   - Finally, if the note is older than 7 days, it deletes it as stale
-func cleanupUnconfirmedNotes() {
+func CleanupUnconfirmedNotes() {
 	// Query all rows from unconfirmed_notes.
 	rows, err := internalDb.Query(`
 		SELECT id, commitment, nullifier, txn_id, created_at

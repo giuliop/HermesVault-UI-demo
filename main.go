@@ -25,6 +25,7 @@ func main() {
 	defer db.Close()
 
 	// Start periodic cleanup of internal database
+	db.CleanupUnconfirmedNotes()
 	cleanupCancel := db.StartCleanupRoutine(context.Background(), config.CleanupInterval)
 	defer cleanupCancel()
 
