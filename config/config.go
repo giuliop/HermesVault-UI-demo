@@ -38,10 +38,10 @@ func init() {
 		log.Fatalf("failed to load env: %v", err)
 	}
 
-	AppSetupDirPath = env[AppSetupDirPath]
-	InternalDbPath = env[InternalDbPath]
-	TxnsDbPath = env[TxnsDbPath]
-	AlgodPath = env[AlgodPath]
+	AppSetupDirPath = env["AppSetupDirPath"]
+	InternalDbPath = env["InternalDbPath"]
+	TxnsDbPath = env["TxnsDbPath"]
+	AlgodPath = env["AlgodPath"]
 }
 
 // LoadEnv reads a set of key-value pairs from a file and returns them as a map

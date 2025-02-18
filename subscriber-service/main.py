@@ -25,7 +25,7 @@ from models import Deposit, Note, Withdrawal
 # read configuration
 env = config.load_env("../config/.env")
 ALGOD_DIR = env["AlgodPath"]
-APP_FILE = os.path.join(env["AppSetupDirPath"], "app.json")
+APP_FILE = os.path.join(env["AppSetupDirPath"], "App.json")
 DB_FILE = env["TxnsDbPath"]
 
 # TODO: review logging
@@ -104,7 +104,7 @@ def main():
     init()
 
     algod_address, algod_token = config.read_algod_config_from_dir(ALGOD_DIR)
-    algod = algosdk.v2client.algod.AlgodClient(algod_address, algod_token)
+    algod = algosdk.v2client.algod.AlgodClient(algod_token, algod_address)
     depositFilter = NamedTransactionFilter(
         name=parse.depositFilterName,
         filter=TransactionFilter(app_id=APP_ID, method_signature=parse.DEPOSIT_SIGNATURE),

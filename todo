@@ -5,10 +5,11 @@ Backend
 
 Subscriber service
 * Review error handling
+* Use an archival node as backup if watermark behind algod
 
 DB
 * review incoming data validation
-* review encryption 
+* review encryption
 * review indexes
 
 UI
@@ -18,4 +19,3 @@ UI
 
 Testing
 * Add automated tests
-
