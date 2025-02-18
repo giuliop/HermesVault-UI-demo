@@ -109,6 +109,7 @@ def main():
         algod_address, algod_token = config.read_algod_config_from_dir(ALGOD_DIR)
 
     algod = algosdk.v2client.algod.AlgodClient(algod_token, algod_address)
+
     depositFilter = NamedTransactionFilter(
         name=parse.depositFilterName,
         filter=TransactionFilter(app_id=APP_ID, method_signature=parse.DEPOSIT_SIGNATURE),

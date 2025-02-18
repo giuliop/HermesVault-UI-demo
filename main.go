@@ -24,6 +24,10 @@ func main() {
 
 	defer db.Close()
 
+	// Start periodic cleanup of internal database
+	cleanupCancel := db.StartCleanupRoutine(context.Background(), config.CleanupInterval)
+	defer cleanupCancel()
+
 	templates.InitTemplates()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 // webserver constants
@@ -22,6 +23,9 @@ const (
 
 	// Number of rounds to wait for a transaction to be confirmed
 	WaitRounds = 20
+
+	// Interval between internal db cleanup runs
+	CleanupInterval = 10 * time.Minute // 10 minutes
 )
 
 // file paths
