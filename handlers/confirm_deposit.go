@@ -116,6 +116,11 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Your deposit was rejected. Please try again.",
 				http.StatusUnprocessableEntity)
 			return
+		case avm.ErrOverSpend:
+			log.Printf("Deposit transaction overspent: %v", confirmationError.Error())
+			http.Error(w, "You do not have enough funds in your wallet for this deposit",
+				http.StatusUnprocessableEntity)
+			return
 		case avm.ErrWaitTimeout:
 			log.Printf("Deposit transaction timed out: %v", confirmationError.Error())
 			http.Error(w, "Your deposit has not been confirmed by the blockchain yet.<br>"+

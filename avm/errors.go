@@ -5,21 +5,24 @@ import (
 	"strings"
 )
 
-// TxnConfirmationErrorType represents the type of error waiting for a txn confirmation
-type TxnConfirmationErrorType int
+// SendTxnErrorType represents the type of error sending a transaction
+type SendTxnErrorType int
 
 const (
-	ErrWaitTimeout TxnConfirmationErrorType = iota
+	ErrWaitTimeout SendTxnErrorType = iota
 	ErrRejected
+	ErrOverSpend
 	ErrInternal
 )
 
-func (e TxnConfirmationErrorType) String() string {
+func (e SendTxnErrorType) String() string {
 	switch e {
 	case ErrWaitTimeout:
 		return "TxnConfirmationTimeoutError"
 	case ErrRejected:
 		return "TxnConfirmationRejectionError"
+	case ErrOverSpend:
+		return "TxnConfirmationOverSpendError"
 	case ErrInternal:
 		return "TxnConfirmationInternalError"
 	default:
@@ -29,8 +32,8 @@ func (e TxnConfirmationErrorType) String() string {
 
 // TxnConfirmationError represents an error waiting for a txn confirmation
 type TxnConfirmationError struct {
-	Type    TxnConfirmationErrorType // The type of the error
-	Message string                   // The original error message
+	Type    SendTxnErrorType // The type of the error
+	Message string           // The original error message
 }
 
 // Implement the Error() method to satisfy the error interface
@@ -57,6 +60,28 @@ func parseWaitForConfirmationError(err error) *TxnConfirmationError {
 	}
 	return &TxnConfirmationError{
 		Type:    ErrInternal,
+		Message: err.Error(),
+	}
+}
+
+func parseSendTransactionError(err error) *TxnConfirmationError {
+	if err == nil {
+		return nil
+	}
+	if strings.Contains(err.Error(), "logic eval error") {
+		return &TxnConfirmationError{
+			Type:    ErrRejected,
+			Message: err.Error(),
+		}
+	}
+	if strings.Contains(err.Error(), "overspend") {
+		return &TxnConfirmationError{
+			Type:    ErrOverSpend,
+			Message: err.Error(),
+		}
+	}
+	return &TxnConfirmationError{
+		Type:    ErrRejected,
 		Message: err.Error(),
 	}
 }

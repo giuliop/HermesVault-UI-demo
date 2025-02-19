@@ -37,7 +37,7 @@ func WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if errNote != nil {
 			log.Printf("Error parsing withdrawal note: %v", errNote)
-			errorMsg += "Invalid secret note"
+			errorMsg += "The note you provided is not valid"
 		}
 		if errorMsg != "" {
 			http.Error(w, errorMsg, http.StatusUnprocessableEntity)
@@ -67,7 +67,7 @@ func WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			}
 		case sql.ErrNoRows:
-			errorMsg = "<b>The note you provided is invalid</b><br>"
+			errorMsg = "The note you provided is not valid<br>"
 			http.Error(w, errorMsg, http.StatusUnprocessableEntity)
 		default:
 			errorMsg = "<b>Something went wrong.</b><br>Please try again."

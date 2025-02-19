@@ -158,7 +158,7 @@ func SendDepositToNetwork(txns []types.Transaction, userSignedTxn []byte,
 	// now send the transactions to the network
 	_, err = algod.SendRawTransaction(signedGroup).Do(context.Background())
 	if err != nil {
-		return 0, "", InternalError("failed to send transaction: " + err.Error())
+		return 0, "", parseSendTransactionError(err)
 	}
 	// we wait on te first transaction, the deposit app call, to get the leaf index
 	depositAppCallTxnId := crypto.GetTxID(txns[0])
@@ -346,7 +346,7 @@ func SendWithdrawalToNetwork(txns []types.Transaction,
 	// now send the transactions to the network
 	_, err = algod.SendRawTransaction(signedGroup).Do(context.Background())
 	if err != nil {
-		return 0, "", InternalError("failed to send transaction: " + err.Error())
+		return 0, "", parseSendTransactionError(err)
 	}
 
 	// we wait on te first transaction, the deposit app call, to get the leaf index
