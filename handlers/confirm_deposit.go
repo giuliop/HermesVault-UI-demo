@@ -109,31 +109,40 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	leafIndex, txnId, confirmationError = avm.SendDepositToNetwork(depositData.Txns, signedTxnBytes)
+	leafIndex, txnId, confirmationError = avm.SendDepositToNetwork(depositData.Txns,
+		signedTxnBytes)
+
+	goBackHtml := `<br><a href="/">Go back</a>`
 	if confirmationError != nil {
 		switch confirmationError.Type {
 		case avm.ErrRejected:
 			log.Printf("Deposit transaction rejected: %v", confirmationError.Error())
-			http.Error(w, "Your deposit was rejected. Please try again.",
+			http.Error(w, "Your deposit was rejected. Please try again."+goBackHtml,
 				http.StatusUnprocessableEntity)
 			return
 		case avm.ErrOverSpend:
 			log.Printf("Deposit transaction overspent: %v", confirmationError.Error())
-			http.Error(w, "You do not have enough funds in your wallet for this deposit",
-				http.StatusUnprocessableEntity)
+			http.Error(w, "You do not have enough funds in your wallet for this deposit"+
+				goBackHtml, http.StatusUnprocessableEntity)
+			return
+		case avm.ErrExpired:
+			log.Printf("Deposit transaction expired: %v", confirmationError.Error())
+			http.Error(w, "Too much time has passed and your deposit transaction has expired."+
+				"<br>Please try again."+goBackHtml,
+				http.StatusRequestTimeout)
 			return
 		case avm.ErrWaitTimeout:
 			log.Printf("Deposit transaction timed out: %v", confirmationError.Error())
 			http.Error(w, "Your deposit has not been confirmed by the blockchain yet.<br>"+
 				"Please wait a few minutes and check your wallet to see if the deposit was sent."+
-				"<br>If not, please try again.",
+				"<br>If not, please try again."+goBackHtml,
 				http.StatusRequestTimeout)
 			return
 		case avm.ErrInternal:
 			log.Printf("Internal error sending deposit transaction: %v",
 				confirmationError.Error())
 			http.Error(w, "Something went wrong. Your deposit was not processed."+
-				"<br>Please try again.",
+				"<br>Please try again."+goBackHtml,
 				http.StatusInternalServerError)
 			return
 		}
