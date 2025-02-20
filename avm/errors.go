@@ -12,6 +12,7 @@ const (
 	ErrWaitTimeout SendTxnErrorType = iota
 	ErrRejected
 	ErrOverSpend
+	ErrExpired
 	ErrInternal
 )
 
@@ -23,6 +24,8 @@ func (e SendTxnErrorType) String() string {
 		return "TxnConfirmationRejectionError"
 	case ErrOverSpend:
 		return "TxnConfirmationOverSpendError"
+	case ErrExpired:
+		return "TxnConfirmationExpiredError"
 	case ErrInternal:
 		return "TxnConfirmationInternalError"
 	default:
@@ -77,6 +80,12 @@ func parseSendTransactionError(err error) *TxnConfirmationError {
 	if strings.Contains(err.Error(), "overspend") {
 		return &TxnConfirmationError{
 			Type:    ErrOverSpend,
+			Message: err.Error(),
+		}
+	}
+	if strings.Contains(err.Error(), "txn dead") {
+		return &TxnConfirmationError{
+			Type:    ErrExpired,
 			Message: err.Error(),
 		}
 	}
