@@ -1,4 +1,4 @@
-module webapp
+module github.com/giuliop/HermesVault-frontend
 
 go 1.23
 
@@ -9,8 +9,6 @@ require (
 	github.com/giuliop/algoplonk v0.1.8
 	github.com/mattn/go-sqlite3 v1.14.24
 )
-
-// replace github.com/giuliop/algoplonk => ../../algoplonk
 
 require (
 	github.com/algorand/avm-abi v0.2.0 // indirect

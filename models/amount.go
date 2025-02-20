@@ -3,7 +3,8 @@ package models
 import (
 	"fmt"
 	"strings"
-	"webapp/config"
+
+	"github.com/giuliop/HermesVault-frontend/config"
 )
 
 // Amount represent an algo token amount

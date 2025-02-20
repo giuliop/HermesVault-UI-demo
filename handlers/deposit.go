@@ -3,11 +3,12 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"webapp/avm"
-	"webapp/config"
-	"webapp/frontend/templates"
-	"webapp/memstore"
-	"webapp/models"
+
+	"github.com/giuliop/HermesVault-frontend/avm"
+	"github.com/giuliop/HermesVault-frontend/config"
+	"github.com/giuliop/HermesVault-frontend/frontend/templates"
+	"github.com/giuliop/HermesVault-frontend/memstore"
+	"github.com/giuliop/HermesVault-frontend/models"
 
 	"github.com/algorand/go-algorand-sdk/v2/crypto"
 )

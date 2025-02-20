@@ -1,6 +1,6 @@
 package models
 
-import "webapp/config"
+import "github.com/giuliop/HermesVault-frontend/config"
 
 // Address represents a valid Algorand address
 type Address string

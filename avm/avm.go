@@ -9,7 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"webapp/config"
+
+	"github.com/giuliop/HermesVault-frontend/config"
 
 	"github.com/algorand/go-algorand-sdk/v2/abi"
 	"github.com/algorand/go-algorand-sdk/v2/client/v2/algod"

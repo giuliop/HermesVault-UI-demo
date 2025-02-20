@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"webapp/config"
-	"webapp/models"
+
+	"github.com/giuliop/HermesVault-frontend/config"
+	"github.com/giuliop/HermesVault-frontend/models"
 
 	"github.com/algorand/go-algorand-sdk/v2/crypto"
 	"github.com/giuliop/algoplonk/utils"

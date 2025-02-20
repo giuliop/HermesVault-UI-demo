@@ -11,10 +11,11 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"webapp/config"
-	"webapp/db"
-	"webapp/frontend/templates"
-	"webapp/handlers"
+
+	"github.com/giuliop/HermesVault-frontend/config"
+	"github.com/giuliop/HermesVault-frontend/db"
+	"github.com/giuliop/HermesVault-frontend/frontend/templates"
+	"github.com/giuliop/HermesVault-frontend/handlers"
 )
 
 func main() {

@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"webapp/config"
+
+	"github.com/giuliop/HermesVault-frontend/config"
 
 	"github.com/algorand/go-algorand-sdk/v2/types"
 )

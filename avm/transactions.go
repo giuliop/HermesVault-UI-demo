@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"webapp/config"
-	"webapp/models"
-	"webapp/zkp"
-	"webapp/zkp/circuits"
+
+	"github.com/giuliop/HermesVault-frontend/config"
+	"github.com/giuliop/HermesVault-frontend/models"
+	"github.com/giuliop/HermesVault-frontend/zkp"
+	"github.com/giuliop/HermesVault-frontend/zkp/circuits"
 
 	sdk_models "github.com/algorand/go-algorand-sdk/v2/client/v2/common/models"
 	"github.com/algorand/go-algorand-sdk/v2/crypto"

@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"webapp/config"
+
+	"github.com/giuliop/HermesVault-frontend/config"
 
 	_ "github.com/mattn/go-sqlite3"
 )

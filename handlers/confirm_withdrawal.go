@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"webapp/avm"
-	"webapp/db"
-	"webapp/models"
+
+	"github.com/giuliop/HermesVault-frontend/avm"
+	"github.com/giuliop/HermesVault-frontend/db"
+	"github.com/giuliop/HermesVault-frontend/models"
 
 	"github.com/algorand/go-algorand-sdk/v2/crypto"
 )

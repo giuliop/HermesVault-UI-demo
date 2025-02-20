@@ -1,7 +1,7 @@
 package circuits
 
 import (
-	"webapp/config"
+	"github.com/giuliop/HermesVault-frontend/config"
 
 	"github.com/consensys/gnark/frontend"
 	"github.com/consensys/gnark/std/accumulator/merkle"

@@ -3,8 +3,9 @@ package avm
 import (
 	"bytes"
 	"fmt"
-	"webapp/config"
-	"webapp/db"
+
+	"github.com/giuliop/HermesVault-frontend/config"
+	"github.com/giuliop/HermesVault-frontend/db"
 )
 
 // getRoot returns the Merkle root from the database

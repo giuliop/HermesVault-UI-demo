@@ -4,7 +4,8 @@ package db
 import (
 	"fmt"
 	"log"
-	"webapp/models"
+
+	"github.com/giuliop/HermesVault-frontend/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )

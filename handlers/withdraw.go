@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"webapp/config"
-	"webapp/db"
-	"webapp/frontend/templates"
-	"webapp/models"
+
+	"github.com/giuliop/HermesVault-frontend/config"
+	"github.com/giuliop/HermesVault-frontend/db"
+	"github.com/giuliop/HermesVault-frontend/frontend/templates"
+	"github.com/giuliop/HermesVault-frontend/models"
 )
 
 func WithdrawHandler(w http.ResponseWriter, r *http.Request) {

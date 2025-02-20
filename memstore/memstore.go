@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"webapp/models"
+	"github.com/giuliop/HermesVault-frontend/models"
 
 	"github.com/algorand/go-algorand-sdk/v2/types"
 )

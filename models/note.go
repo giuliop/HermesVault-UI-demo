@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"webapp/config"
+	"github.com/giuliop/HermesVault-frontend/config"
 )
 
 type Note struct {
