@@ -3,11 +3,12 @@ tmp_dir = ".tmp"
 
 [build]
   bin = "./.tmp/main"
-  cmd = "npm run build --prefix frontend && go build -o ./.tmp/main ."
+  cmd = "npm run build --prefix frontend && /usr/local/go/bin/go build -o ./.tmp/main ."
   delay = 1000
   exclude_dir = [
     "frontend/node_modules",
     "frontend/static",
+    "log"
   ]
   include_ext = ["go", "tpl", "tmpl", "html", "js"]
 
