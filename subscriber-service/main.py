@@ -29,7 +29,8 @@ APP_FILE = os.path.join(env["AppSetupDirPath"], "App.json")
 DB_FILE = env["TxnsDbPath"]
 
 # TODO: review logging
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.getLogger().setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 APP_ID = None
