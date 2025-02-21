@@ -18,8 +18,7 @@ import (
 func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Printf("Error parsing form: %v", err)
-		http.Error(w, "Bad Request. Your deposit was not processed.",
-			http.StatusBadRequest)
+		http.Error(w, modalDepositFailed("Bad request"), http.StatusBadRequest)
 		return
 	}
 	amount, errAmount := models.Input(r.FormValue("amount")).ToAmount()
@@ -40,8 +39,8 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 		errorMsg += "Invalid note<br>"
 	}
 	if errorMsg != "" {
-		http.Error(w, errorMsg+"Your deposit was not processed.",
-			http.StatusUnprocessableEntity)
+		log.Printf("Invalid deposit data: %s", errorMsg)
+		http.Error(w, modalDepositFailed(errorMsg), http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -49,7 +48,8 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 	signedTxnBytes, err := base64.StdEncoding.DecodeString(signedTxnBase64)
 	if err != nil {
 		log.Printf("Error decoding signed transaction: %v", err)
-		http.Error(w, "Bad Request. Your deposit was not processed.", http.StatusBadRequest)
+		http.Error(w, modalDepositFailed("The signed transaction is malformed"),
+			http.StatusBadRequest)
 		return
 	}
 
@@ -57,7 +57,8 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 	err = msgpack.Decode(signedTxnBytes, &signedTxn)
 	if err != nil {
 		log.Printf("Error decoding signed transaction: %v", err)
-		http.Error(w, "Bad Request. Your deposit was not processed.", http.StatusBadRequest)
+		http.Error(w, modalDepositFailed("The signed transaction is malformed"),
+			http.StatusBadRequest)
 		return
 	}
 
@@ -66,8 +67,7 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 	depositData, err := ms.RetrieveDeposit(groupId)
 	if err != nil {
 		log.Printf("Error retrieving deposit data: %v", err)
-		http.Error(w, "Something went wrong. Your deposit was not processed."+
-			"<br>Please try again.",
+		http.Error(w, modalDepositFailed("Something went wrong"),
 			http.StatusInternalServerError)
 		return
 	}
@@ -78,15 +78,14 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("deposit data does not match. Form submitted:\nAmount: %v\nAddress: "+
 			"%v\nNote: %v\n, while memory store had Amount: %v\nAddress: %v\nNote: %v\n",
 			amount, address, note, depositData.Amount, depositData.Address, depositData.Note)
-		http.Error(w, "Bad Request. Your deposit was not processed.", http.StatusBadRequest)
+		http.Error(w, modalDepositFailed("Bad Request"), http.StatusBadRequest)
 		return
 	}
 
 	noteId, err := db.RegisterUnconfirmedNote(depositData.Note)
 	if err != nil {
 		log.Printf("Error saving unconfirmed deposit: %v", err)
-		http.Error(w, "Something went wrong. Your deposit was not processed."+
-			"<br>Please try again.",
+		http.Error(w, modalDepositFailed("Something went wrong"),
 			http.StatusInternalServerError)
 		return
 	}
@@ -112,38 +111,38 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 	leafIndex, txnId, confirmationError = avm.SendDepositToNetwork(depositData.Txns,
 		signedTxnBytes)
 
-	goBackHtml := `<br><a href="/">Go back</a>`
 	if confirmationError != nil {
 		switch confirmationError.Type {
 		case avm.ErrRejected:
 			log.Printf("Deposit transaction rejected: %v", confirmationError.Error())
-			http.Error(w, "Your deposit was rejected. Please try again."+goBackHtml,
-				http.StatusUnprocessableEntity)
+			msg := `Your deposit transaction was rejected by the network.<br>
+					Please try again`
+			http.Error(w, modalDepositFailed(msg), http.StatusUnprocessableEntity)
 			return
 		case avm.ErrOverSpend:
 			log.Printf("Deposit transaction overspent: %v", confirmationError.Error())
-			http.Error(w, "You do not have enough funds in your wallet for this deposit"+
-				goBackHtml, http.StatusUnprocessableEntity)
+			msg := `You do not have enough funds in your wallet`
+			http.Error(w, modalDepositFailed(msg), http.StatusUnprocessableEntity)
 			return
 		case avm.ErrExpired:
 			log.Printf("Deposit transaction expired: %v", confirmationError.Error())
-			http.Error(w, "Too much time has passed and your deposit transaction has expired."+
-				"<br>Please try again."+goBackHtml,
-				http.StatusRequestTimeout)
+			msg := `Too much time has passed and your deposit transaction has expired.<br>
+					Please try again`
+			http.Error(w, modalDepositFailed(msg), http.StatusRequestTimeout)
 			return
 		case avm.ErrWaitTimeout:
 			log.Printf("Deposit transaction timed out: %v", confirmationError.Error())
-			http.Error(w, "Your deposit has not been confirmed by the blockchain yet.<br>"+
-				"Please wait a few minutes and check your wallet to see if the deposit was sent."+
-				"<br>If not, please try again."+goBackHtml,
-				http.StatusRequestTimeout)
+			msg := `Your deposit has not been confirmed by the network yet.<br>
+					Please wait a few minutes and check your wallet to see if the deposit was sent.<br>
+					If not, please try again.`
+			http.Error(w, modalDepositFailed(msg), http.StatusRequestTimeout)
 			return
 		case avm.ErrInternal:
 			log.Printf("Internal error sending deposit transaction: %v",
 				confirmationError.Error())
-			http.Error(w, "Something went wrong. Your deposit was not processed."+
-				"<br>Please try again."+goBackHtml,
-				http.StatusInternalServerError)
+			msg := `Something went wrong. Your deposit was not processed.<br>
+					Please try again.`
+			http.Error(w, modalDepositFailed(msg), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -153,24 +152,39 @@ func ConfirmDepositHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Deposit txnId mismatch. %v != %v", txnId, depositData.Note.TxnID)
 	}
 
-	successHtml := `<dialog class="modal">
-			   <h1>Deposit successful</h1>
-				 <p>
-				   You can use your new secret note to withdraw your funds in the future.
-				</p>
-				<button hx-get="withdraw"
-						onclick="this.parentElement.close()">
-				  Close
-				</button>
-			 </dialog>
-			 <script>
-			   document.querySelectorAll('dialog')[0].showModal()
-			 </script>
-			`
+	successHtml := `
+		<dialog class="modal">
+		  <h1>&#9989; Deposit successful</h1>
+		  <p>
+			You can use your new secret note to withdraw your funds in the future.
+		  </p>
+		  <button hx-get="withdraw" onclick="this.parentElement.close()">
+			Close
+		  </button>
+		</dialog>
+		<script>
+		  document.querySelectorAll('dialog')[0].showModal()
+		</script>
+	`
 	fmt.Fprint(w, successHtml)
 
 	saveNoteToDbError = db.SaveNote(depositData.Note)
 	if saveNoteToDbError != nil {
 		log.Printf("Error saving deposit to db: %v", saveNoteToDbError)
 	}
+}
+
+func modalDepositFailed(message string) string {
+	return `<dialog class="modal">
+			    <h1>&#10060; Deposit failed</h1>
+				<p>
+				` + message + `
+				</p>
+				<button hx-get="deposit" onclick="this.parentElement.close()">
+				  Close
+				</button>
+			</dialog>
+			<script>
+			    document.querySelectorAll('dialog')[0].showModal()
+			</script>`
 }

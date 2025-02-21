@@ -15,8 +15,7 @@ import (
 func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Printf("Error parsing form: %v", err)
-		http.Error(w, "Bad Request. Your withdrawal was not processed.",
-			http.StatusBadRequest)
+		http.Error(w, modalWithdrawalFailed("Bad request"), http.StatusBadRequest)
 		return
 	}
 	amount, errAmount := models.Input(r.FormValue("amount")).ToAmount()
@@ -42,15 +41,15 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		errorMsg += "Invalid new secret note<br>"
 	}
 	if errorMsg != "" {
-		http.Error(w, errorMsg+"Your withdrawal was not processed.",
-			http.StatusUnprocessableEntity)
+		log.Printf("Invalid withdrawal data: %s", errorMsg)
+		http.Error(w, modalWithdrawalFailed(errorMsg), http.StatusUnprocessableEntity)
 		return
 	}
 	var err error
 	fromNote.LeafIndex, err = db.GetLeafIndexByCommitment(fromNote.Commitment())
 	if err != nil {
 		log.Printf("Error getting leaf index by commitment: %v", err)
-		http.Error(w, "Something went wrong. Your withdrawal was not processed.",
+		http.Error(w, modalWithdrawalFailed("Something went wrong"),
 			http.StatusInternalServerError)
 		return
 	}
@@ -66,7 +65,7 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	txns, err := avm.CreateWithdrawalTxns(withdrawData)
 	if err != nil {
 		log.Printf("Error creating withdrawal transactions: %v", err)
-		http.Error(w, "Something went wrong. Your withdrawal was not processed.",
+		http.Error(w, modalWithdrawalFailed("Something went wrong"),
 			http.StatusInternalServerError)
 		return
 	}
@@ -75,7 +74,7 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	noteId, err := db.RegisterUnconfirmedNote(withdrawData.ChangeNote)
 	if err != nil {
 		log.Printf("Error saving unconfirmed withdrawal: %v", err)
-		http.Error(w, "Something went wrong. Your withdrawal was not processed.",
+		http.Error(w, modalWithdrawalFailed("Something went wrong"),
 			http.StatusInternalServerError)
 		return
 	}
@@ -103,23 +102,23 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		switch confirmationError.Type {
 		case avm.ErrRejected:
 			log.Printf("Withdrawal transaction rejected: %v", confirmationError.Error())
-			http.Error(w, "Your withdrawal was rejected by the network.<br>"+
-				"Please check your secret note and try again.",
-				http.StatusUnprocessableEntity)
+			msg := `Your withdrawal was rejected by the network.<br>
+					Please check your secret note and try again.`
+			http.Error(w, modalWithdrawalFailed(msg), http.StatusUnprocessableEntity)
 			return
 		case avm.ErrWaitTimeout:
 			log.Printf("Withdrawal transaction timed out: %v", confirmationError.Error())
-			http.Error(w, "Your withdrawal has not been confirmed by the blockchain yet.<br>"+
-				"Please wait a few minutes and check your wallet to see if the withdrawal was received."+
-				"<br>If not, please try again.",
-				http.StatusRequestTimeout)
+			msg := `Your withdrawal has not been confirmed by the blockchain yet.<br>
+					Please wait a few minutes and check your wallet to see if the withdrawal was received.<br>
+					If not, please try again.`
+			http.Error(w, modalWithdrawalFailed(msg), http.StatusRequestTimeout)
 			return
 		case avm.ErrInternal:
 			log.Printf("Internal error sending withdrawal transaction: %v",
 				confirmationError.Error())
-			http.Error(w, "Something went wrong. Your withdrawal was not processed."+
-				"<br>Please try again.",
-				http.StatusInternalServerError)
+			msg := `Something went wrong. Your withdrawal was not processed.<br>
+					Please try again.`
+			http.Error(w, modalWithdrawalFailed(msg), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -129,20 +128,20 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Withdrawal txnId mismatch: %v != %v", txnId, withdrawData.ChangeNote.TxnID)
 	}
 
-	successHtml := `<dialog class="modal">
-					   <h1>Withdrawal successful</h1>
-						 <p>
-						   You can use your new secret note to withdraw any remaining balance in the future.
-						</p>
-						<button hx-get="withdraw"
-								onclick="this.parentElement.close()">
-						  Close
-						</button>
-					 </dialog>
-					 <script>
-					   document.querySelectorAll('dialog')[0].showModal()
-					 </script>
-					 `
+	successHtml := `
+		<dialog class="modal">
+		  <h1>&#9989; Withdrawal successful</h1>
+		  <p>
+			You can use your new secret note to withdraw any remaining balance in the future.
+		  </p>
+		  <button hx-get="withdraw" onclick="this.parentElement.close()">
+			Close
+		  </button>
+		</dialog>
+		<script>
+		  document.querySelectorAll('dialog')[0].showModal()
+		</script>
+	`
 
 	fmt.Fprint(w, successHtml)
 
@@ -150,4 +149,19 @@ func ConfirmWithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	if saveNoteToDbError != nil {
 		log.Printf("Error saving withdrawal to db: %v", saveNoteToDbError)
 	}
+}
+
+func modalWithdrawalFailed(message string) string {
+	return `<dialog class="modal">
+			    <h1>&#10060; Withdrawal failed</h1>
+				<p>
+				` + message + `
+				</p>
+				<button hx-get="withdraw" onclick="this.parentElement.close()">
+				  Close
+				</button>
+			</dialog>
+			<script>
+			    document.querySelectorAll('dialog')[0].showModal()
+			</script>`
 }
