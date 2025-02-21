@@ -178,7 +178,7 @@ def initialize_db(db_file: str) -> None:
     cursor.execute("INSERT OR IGNORE INTO roots (id, value, leaf_count) VALUES (1, x'', 0)")
 
     db_conn.commit()
-    logger.info("Database initialized successfully")
+    logger.warning("Database initialized successfully")
 
 def get_watermark() -> int:
     """
