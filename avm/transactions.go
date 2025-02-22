@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"log"
 
 	"github.com/giuliop/HermesVault-frontend/config"
 	"github.com/giuliop/HermesVault-frontend/models"
@@ -377,7 +378,7 @@ func getLeafIndexAndRoot(txn sdk_models.PendingTransactionInfoResponse,
 	leafIndex = binary.BigEndian.Uint64(abiBytes[4:12])
 	rootBytes := abiBytes[12:]
 	copy(root[:], rootBytes)
-	fmt.Printf("leaf index: %d, root: %x\n", leafIndex, root)
+	log.Printf("leaf index: %d, root: %x\n", leafIndex, root)
 
 	return leafIndex, root, nil
 }

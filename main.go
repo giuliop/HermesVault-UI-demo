@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -67,7 +66,7 @@ func main() {
 			},
 		}
 
-		fmt.Printf("Server running in development mode on port %s\n",
+		log.Printf("Server running in development mode on port %s\n",
 			config.DevelopmentPort)
 		go func() {
 			err = server.ListenAndServeTLS("", "")
@@ -81,7 +80,7 @@ func main() {
 			Addr: ":" + config.ProductionPort,
 		}
 
-		fmt.Printf("Server running in production mode on port %s\n",
+		log.Printf("Server running in production mode on port %s\n",
 			config.ProductionPort)
 		go func() {
 			err := server.ListenAndServe()
@@ -96,7 +95,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	// Block the main goroutine until the server is shut down
 	<-quit
-	fmt.Print("\nShutting down server...\n\n")
+	log.Print("\nShutting down server...\n\n")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
