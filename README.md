@@ -53,6 +53,7 @@ For that purpose, the frontend stores receipts that could be used to link back s
 
 In any case, the frontend can NEVER access users' funds, which are always 100% controlled by the users only.
 
-There are two ways you can lose your funds:
+There are three ways you can lose your funds:
 1) You lose your secret note
-2) The frontend is hacked and it serves you malicious code to steal your secret note
+2) Your device is compromised with malware that steals your secret note
+3) The frontend is hacked and it serves you malicious code to steal your secret note
