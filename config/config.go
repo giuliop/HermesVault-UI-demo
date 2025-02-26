@@ -21,7 +21,7 @@ const (
 	NumCharsToHighlight = 5
 
 	// Number of rounds to wait for a transaction to be confirmed
-	WaitRounds = 20
+	WaitRounds = 30
 
 	// Interval between internal db cleanup runs
 	CleanupInterval = 10 * time.Minute // 10 minutes
