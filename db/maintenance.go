@@ -18,7 +18,7 @@ func StartCleanupRoutine(ctx context.Context, interval time.Duration) context.Ca
 		for {
 			select {
 			case <-ticker.C:
-				log.Println("Running cleanup of unconfirmed notes...")
+				// log.Println("Running cleanup of unconfirmed notes...")
 				CleanupUnconfirmedNotes()
 			case <-ctx.Done():
 				log.Println("Cleanup routine stopped")
