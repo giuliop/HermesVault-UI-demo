@@ -30,7 +30,7 @@ const (
 	DepositMinFeeMultiplier = 42
 
 	// fees needed for a withdrawal transaction group
-	WithdrawalMinFeeMultiplier = 44
+	WithdrawalMinFeeMultiplier = 47
 )
 
 var Hash = NewMimcF(Curve)
