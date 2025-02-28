@@ -96,7 +96,7 @@ func main() {
 	// Block the main goroutine until the server is shut down
 	<-quit
 	log.Print("\nShutting down server...\n\n")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v\n", err)
