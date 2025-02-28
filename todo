@@ -13,6 +13,7 @@ DB
 * review indexes
 
 UI
+* fix back button
 * Prevent submit buttons to fire again before receiving response
 * Review error messages to user
 * Minify all css/js files

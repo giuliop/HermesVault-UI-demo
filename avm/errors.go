@@ -14,6 +14,7 @@ const (
 	ErrOverSpend
 	ErrExpired
 	ErrInternal
+	ErrMinimumBalanceRequirement
 )
 
 func (e SendTxnErrorType) String() string {
@@ -28,6 +29,8 @@ func (e SendTxnErrorType) String() string {
 		return "TxnConfirmationExpiredError"
 	case ErrInternal:
 		return "TxnConfirmationInternalError"
+	case ErrMinimumBalanceRequirement:
+		return "TxnConfirmationMinimumBalanceRequirementError"
 	default:
 		return "TxnConfirmationUnknownError"
 	}
@@ -86,6 +89,13 @@ func parseSendTransactionError(err error) *TxnConfirmationError {
 	if strings.Contains(err.Error(), "txn dead") {
 		return &TxnConfirmationError{
 			Type:    ErrExpired,
+			Message: err.Error(),
+		}
+	}
+	if strings.Contains(err.Error(), "balance") &&
+		strings.Contains(err.Error(), "below min") {
+		return &TxnConfirmationError{
+			Type:    ErrMinimumBalanceRequirement,
 			Message: err.Error(),
 		}
 	}
